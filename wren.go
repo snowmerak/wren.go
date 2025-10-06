@@ -1,39 +1,10 @@
 package wrengo
 
-// #cgo CFLAGS: -I${SRCDIR}/deps/wren/src/include -I${SRCDIR}/deps/wren/src/vm -I${SRCDIR}/deps/wren/src/optional
-// #cgo LDFLAGS: -lm
+// #cgo CFLAGS: -I${SRCDIR}/deps/wren/src/include
+// #cgo LDFLAGS: -L${SRCDIR} -lwren -lm
 // #include <stdlib.h>
 // #include <string.h>
 // #include "wren.h"
-// #include "wren_vm.c"
-// #include "wren_compiler.c"
-// #include "wren_core.c"
-// #include "wren_debug.c"
-// #include "wren_primitive.c"
-// #include "wren_utils.c"
-// #include "wren_value.c"
-// #include "wren_opt_meta.c"
-// #include "wren_opt_random.c"
-//
-// #include <stdio.h>
-//
-// static void wrenWriteStdout(WrenVM* vm, const char* text) {
-//   printf("%s", text);
-// }
-//
-// static void wrenErrorStderr(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message) {
-//   switch (type) {
-//     case WREN_ERROR_COMPILE:
-//       fprintf(stderr, "[%s line %d] [Error] %s", module, line, message);
-//       break;
-//     case WREN_ERROR_STACK_TRACE:
-//       fprintf(stderr, "[%s line %d] in %s", module, line, message);
-//       break;
-//     case WREN_ERROR_RUNTIME:
-//       fprintf(stderr, "[Runtime Error] %s", message);
-//       break;
-//   }
-// }
 import "C"
 import (
 	"errors"
@@ -59,10 +30,6 @@ type WrenVM struct {
 func NewVM() *WrenVM {
 	var config C.WrenConfiguration
 	C.wrenInitConfiguration(&config)
-
-	// Set default write and error functions
-	config.writeFn = C.WrenWriteFn(C.wrenWriteStdout)
-	config.errorFn = C.WrenErrorFn(C.wrenErrorStderr)
 
 	vm := &WrenVM{
 		vm: C.wrenNewVM(&config),
