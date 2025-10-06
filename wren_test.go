@@ -2,7 +2,7 @@ package wrengo_test
 
 import (
 	"testing"
-	
+
 	"github.com/snowmerak/wren.go"
 )
 
@@ -28,14 +28,14 @@ func TestInterpretSimple(t *testing.T) {
 		t.Fatal("Failed to create VM")
 	}
 	defer vm.Free()
-	
+
 	source := `System.print("Hello from Wren!")`
 	result, err := vm.Interpret("main", source)
-	
+
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultSuccess {
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
@@ -47,7 +47,7 @@ func TestInterpretWithVariable(t *testing.T) {
 		t.Fatal("Failed to create VM")
 	}
 	defer vm.Free()
-	
+
 	source := `
 var x = 42
 var y = 3.14
@@ -55,13 +55,13 @@ System.print("x = %(x)")
 System.print("y = %(y)")
 System.print("x + y = %(x + y)")
 `
-	
+
 	result, err := vm.Interpret("main", source)
-	
+
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultSuccess {
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
@@ -73,7 +73,7 @@ func TestInterpretWithClass(t *testing.T) {
 		t.Fatal("Failed to create VM")
 	}
 	defer vm.Free()
-	
+
 	source := `
 class Greeter {
   construct new(name) {
@@ -88,13 +88,13 @@ class Greeter {
 var greeter = Greeter.new("World")
 greeter.greet()
 `
-	
+
 	result, err := vm.Interpret("main", source)
-	
+
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultSuccess {
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
@@ -106,17 +106,17 @@ func TestInterpretCompileError(t *testing.T) {
 		t.Fatal("Failed to create VM")
 	}
 	defer vm.Free()
-	
+
 	source := `
 var x = 
 `
-	
+
 	result, err := vm.Interpret("main", source)
-	
+
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultCompileError {
 		t.Fatalf("Expected ResultCompileError, got %v", result)
 	}
@@ -125,20 +125,20 @@ var x =
 func TestInterpretWithConfig(t *testing.T) {
 	config := wrengo.DefaultConfiguration()
 	config.InitialHeapSize = 5 * 1024 * 1024 // 5MB
-	
+
 	vm := wrengo.NewVMWithConfig(config)
 	if vm == nil {
 		t.Fatal("Failed to create VM with config")
 	}
 	defer vm.Free()
-	
+
 	source := `System.print("VM with custom config")`
 	result, err := vm.Interpret("main", source)
-	
+
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultSuccess {
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
@@ -150,7 +150,7 @@ func TestCollectGarbage(t *testing.T) {
 		t.Fatal("Failed to create VM")
 	}
 	defer vm.Free()
-	
+
 	// Create some garbage
 	source := `
 var list = []
@@ -158,16 +158,16 @@ for (i in 1..1000) {
   list.add(i)
 }
 `
-	
+
 	result, err := vm.Interpret("main", source)
 	if err != nil {
 		t.Fatalf("Interpret error: %v", err)
 	}
-	
+
 	if result != wrengo.ResultSuccess {
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
-	
+
 	// Force garbage collection
 	vm.CollectGarbage()
 }

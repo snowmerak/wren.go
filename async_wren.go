@@ -18,13 +18,13 @@ var asyncMethodMutex sync.RWMutex
 func RegisterAsyncForeignMethod(module, className string, isStatic bool, signature string, fn AsyncForeignMethodFn) {
 	asyncMethodMutex.Lock()
 	defer asyncMethodMutex.Unlock()
-	
+
 	// Create full signature with static prefix if needed
 	fullSig := signature
 	if isStatic {
 		fullSig = "static " + signature
 	}
-	
+
 	key := module + ":" + className + ":" + fullSig
 	asyncForeignMethods[key] = fn
 }
@@ -33,12 +33,12 @@ func RegisterAsyncForeignMethod(module, className string, isStatic bool, signatu
 func lookupAsyncForeignMethod(module, className string, isStatic bool, signature string) AsyncForeignMethodFn {
 	asyncMethodMutex.RLock()
 	defer asyncMethodMutex.RUnlock()
-	
+
 	fullSig := signature
 	if isStatic {
 		fullSig = "static " + signature
 	}
-	
+
 	key := module + ":" + className + ":" + fullSig
 	return asyncForeignMethods[key]
 }
@@ -73,7 +73,7 @@ func asyncRun(vm *WrenVM) error {
 func asyncCall(vm *WrenVM) error {
 	// Get method name from slot 1
 	methodName := vm.GetSlotString(1)
-	
+
 	// Get args list from slot 2
 	// For simplicity, we'll support basic types
 	var args []interface{}
@@ -82,7 +82,7 @@ func asyncCall(vm *WrenVM) error {
 		args = make([]interface{}, count)
 		for i := 0; i < count; i++ {
 			vm.GetListElement(2, i, 3)
-			
+
 			switch vm.GetSlotType(3) {
 			case TypeNum:
 				args[i] = vm.GetSlotDouble(3)
@@ -93,21 +93,21 @@ func asyncCall(vm *WrenVM) error {
 			}
 		}
 	}
-	
+
 	// Look up the async method
 	asyncMethodMutex.RLock()
 	asyncFn := asyncForeignMethods[methodName]
 	asyncMethodMutex.RUnlock()
-	
+
 	if asyncFn == nil {
 		return fmt.Errorf("async method not found: %s", methodName)
 	}
-	
+
 	// Execute asynchronously
 	future := GetAsyncManager().Submit(func(ctx context.Context) (interface{}, error) {
 		return asyncFn(vm)
 	})
-	
+
 	// Return future ID
 	vm.SetSlotDouble(0, float64(future.ID()))
 	return nil
@@ -118,17 +118,17 @@ func asyncCall(vm *WrenVM) error {
 //wren:bind module=main class=Async name=await(_) static
 func asyncAwait(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	result, err := future.Wait()
 	if err != nil {
 		return err
 	}
-	
+
 	// Set result in slot 0
 	return setSlotValue(vm, 0, result)
 }
@@ -138,12 +138,12 @@ func asyncAwait(vm *WrenVM) error {
 //wren:bind module=main class=Async name=isReady(_) static
 func asyncIsReady(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	vm.SetSlotBool(0, future.IsReady())
 	return nil
 }
@@ -153,17 +153,17 @@ func asyncIsReady(vm *WrenVM) error {
 //wren:bind module=main class=Async name=get(_) static
 func asyncGet(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	result, err := future.Get()
 	if err != nil {
 		return err
 	}
-	
+
 	return setSlotValue(vm, 0, result)
 }
 
@@ -172,12 +172,12 @@ func asyncGet(vm *WrenVM) error {
 //wren:bind module=main class=Async name=cancel(_) static
 func asyncCancel(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	future.Cancel()
 	return nil
 }
@@ -187,12 +187,12 @@ func asyncCancel(vm *WrenVM) error {
 //wren:bind module=main class=Async name=getState(_) static
 func asyncGetState(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	state := future.State()
 	vm.SetSlotDouble(0, float64(state))
 	return nil
@@ -203,7 +203,7 @@ func asyncGetState(vm *WrenVM) error {
 //wren:bind module=main class=Async name=cleanup(_) static
 func asyncCleanup(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	GetAsyncManager().RemoveFuture(int64(futureID))
 	return nil
 }

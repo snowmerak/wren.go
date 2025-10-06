@@ -23,13 +23,13 @@ const (
 
 // Future represents an asynchronous computation result.
 type Future struct {
-	id       int64
-	state    atomic.Int32
-	result   atomic.Value
-	err      atomic.Value
-	done     chan struct{}
-	ctx      context.Context
-	cancel   context.CancelFunc
+	id        int64
+	state     atomic.Int32
+	result    atomic.Value
+	err       atomic.Value
+	done      chan struct{}
+	ctx       context.Context
+	cancel    context.CancelFunc
 	startedAt int64
 }
 
@@ -38,9 +38,9 @@ func newFuture(ctx context.Context) *Future {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	
+
 	ctx, cancel := context.WithCancel(ctx)
-	
+
 	f := &Future{
 		id:     atomic.AddInt64(&nextFutureID, 1),
 		done:   make(chan struct{}),
@@ -48,7 +48,7 @@ func newFuture(ctx context.Context) *Future {
 		cancel: cancel,
 	}
 	f.state.Store(int32(FuturePending))
-	
+
 	return f
 }
 
@@ -71,7 +71,7 @@ func (f *Future) IsReady() bool {
 // Wait blocks until the future completes and returns the result or error.
 func (f *Future) Wait() (interface{}, error) {
 	<-f.done
-	
+
 	state := f.State()
 	switch state {
 	case FutureCompleted:
@@ -93,7 +93,7 @@ func (f *Future) Get() (interface{}, error) {
 	if !f.IsReady() {
 		return nil, errors.New("future not ready")
 	}
-	
+
 	state := f.State()
 	switch state {
 	case FutureCompleted:
@@ -192,29 +192,29 @@ func NewAsyncManager(workers int) *AsyncManager {
 	if workers <= 0 {
 		workers = 4 // Default to 4 workers
 	}
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	am := &AsyncManager{
 		workers: workers,
 		queue:   make(chan *asyncJob, workers*10),
 		ctx:     ctx,
 		cancel:  cancel,
 	}
-	
+
 	// Start worker goroutines
 	for i := 0; i < workers; i++ {
 		am.wg.Add(1)
 		go am.worker()
 	}
-	
+
 	return am
 }
 
 // worker processes jobs from the queue.
 func (am *AsyncManager) worker() {
 	defer am.wg.Done()
-	
+
 	for {
 		select {
 		case <-am.ctx.Done():
@@ -235,7 +235,7 @@ func (am *AsyncManager) executeJob(job *asyncJob) {
 			job.future.fail(errors.New("panic in async task"))
 		}
 	}()
-	
+
 	result, err := job.task(job.future.ctx)
 	if err != nil {
 		job.future.fail(err)
@@ -254,22 +254,22 @@ func (am *AsyncManager) SubmitWithContext(ctx context.Context, task AsyncTask) *
 	if ctx == nil {
 		ctx = am.ctx
 	}
-	
+
 	future := newFuture(ctx)
 	am.futures.Store(future.ID(), future)
-	
+
 	job := &asyncJob{
 		future: future,
 		task:   task,
 	}
-	
+
 	select {
 	case am.queue <- job:
 		// Job queued successfully
 	case <-am.ctx.Done():
 		future.fail(errors.New("async manager is shutting down"))
 	}
-	
+
 	return future
 }
 
@@ -303,7 +303,7 @@ func (am *AsyncManager) WaitAll() {
 		}
 		return true
 	})
-	
+
 	for _, f := range pending {
 		f.Wait()
 	}

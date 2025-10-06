@@ -153,10 +153,10 @@ func (vm *WrenVM) RemoveMapValue(mapSlot, keySlot, removedValueSlot int) {
 func (vm *WrenVM) GetVariable(module, name string, slot int) {
 	cModule := C.CString(module)
 	defer C.free(unsafe.Pointer(cModule))
-	
+
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
-	
+
 	C.wrenGetVariable(vm.vm, cModule, cName, C.int(slot))
 }
 
@@ -164,10 +164,10 @@ func (vm *WrenVM) GetVariable(module, name string, slot int) {
 func (vm *WrenVM) HasVariable(module, name string) bool {
 	cModule := C.CString(module)
 	defer C.free(unsafe.Pointer(cModule))
-	
+
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
-	
+
 	return bool(C.wrenHasVariable(vm.vm, cModule, cName))
 }
 
@@ -175,7 +175,7 @@ func (vm *WrenVM) HasVariable(module, name string) bool {
 func (vm *WrenVM) HasModule(module string) bool {
 	cModule := C.CString(module)
 	defer C.free(unsafe.Pointer(cModule))
-	
+
 	return bool(C.wrenHasModule(vm.vm, cModule))
 }
 

@@ -329,12 +329,12 @@ func generateSignature(b *Binding) string {
 	for range b.Params {
 		params = append(params, "_")
 	}
-	
+
 	paramStr := ""
 	if len(params) > 0 {
 		paramStr = "(" + strings.Join(params, ",") + ")"
 	}
-	
+
 	// Don't include "static" in the signature, just return the method name with params
 	return b.WrenName + paramStr
 }

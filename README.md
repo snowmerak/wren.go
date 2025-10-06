@@ -13,6 +13,7 @@ Wren is a small, fast, class-based concurrent scripting language designed for em
 - ✅ Foreign function/class bindings
 - ✅ Complete slot API for data exchange
 - ✅ **Code generator for automatic bindings**
+- ✅ **Asynchronous task execution system**
 - ✅ Version information
 
 ## Prerequisites
@@ -178,6 +179,23 @@ The example includes:
 - ✅ Complex calculations using multiple functions
 
 See [example/README.md](./example/README.md) for detailed documentation.
+
+### Async Example
+
+Run the async task execution example:
+
+```bash
+go run example/async/main.go
+```
+
+Features:
+- ✅ Future-based async operations
+- ✅ Worker pool management
+- ✅ Task cancellation and timeouts
+- ✅ Context support
+- ✅ Multiple concurrent tasks
+
+See [example/async/README.md](./example/async/README.md) for full documentation.
 
 ## Testing
 
