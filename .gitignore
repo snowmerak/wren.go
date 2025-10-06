@@ -1,1 +1,5 @@
 .serena
+*.o
+*.a
+*.exe
+wren.go.test.exe
