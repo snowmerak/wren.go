@@ -1,0 +1,57 @@
+{
+  "name": "wren-lsp-vscode",
+  "displayName": "Wren Language Support",
+  "description": "Wren language support with LSP",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:wren"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "wren",
+        "aliases": ["Wren", "wren"],
+        "extensions": [".wren"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "wren",
+        "scopeName": "source.wren",
+        "path": "./syntaxes/wren.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Wren LSP",
+      "properties": {
+        "wren.lsp.serverPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to wren-lsp-std executable"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^16.x",
+    "@types/vscode": "^1.60.0",
+    "typescript": "^4.9.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^8.0.0"
+  }
+}
