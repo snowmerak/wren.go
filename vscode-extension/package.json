@@ -16,7 +16,9 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onLanguage:wren"
+    "onLanguage:wren",
+    "onCommand:wren.runFile",
+    "onCommand:wren.runCurrentFile"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -43,8 +45,41 @@
           "type": "string",
           "default": "",
           "description": "Path to wren-lsp-std executable"
+        },
+        "wren.cli.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Wren CLI executable (wren-cli-std or wrencli)"
         }
       }
+    },
+    "commands": [
+      {
+        "command": "wren.runFile",
+        "title": "Wren: Run File",
+        "category": "Wren"
+      },
+      {
+        "command": "wren.runCurrentFile",
+        "title": "Wren: Run Current File",
+        "category": "Wren"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == wren",
+          "command": "wren.runCurrentFile",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceExtname == .wren",
+          "command": "wren.runFile",
+          "group": "navigation"
+        }
+      ]
     }
   },
   "scripts": {

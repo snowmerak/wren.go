@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, commands, window, Uri, Terminal } from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -7,6 +7,7 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
+let wrenTerminal: Terminal | undefined;
 
 export function activate(context: ExtensionContext) {
     // Get LSP server path from config or use default
@@ -38,6 +39,56 @@ export function activate(context: ExtensionContext) {
     );
 
     client.start();
+
+    // Register CLI commands
+    context.subscriptions.push(
+        commands.registerCommand('wren.runCurrentFile', async () => {
+            const editor = window.activeTextEditor;
+            if (!editor) {
+                window.showErrorMessage('No active editor');
+                return;
+            }
+            
+            const document = editor.document;
+            if (document.languageId !== 'wren') {
+                window.showErrorMessage('Current file is not a Wren file');
+                return;
+            }
+            
+            await runWrenFile(document.uri);
+        })
+    );
+
+    context.subscriptions.push(
+        commands.registerCommand('wren.runFile', async (uri: Uri) => {
+            if (!uri) {
+                window.showErrorMessage('No file selected');
+                return;
+            }
+            
+            await runWrenFile(uri);
+        })
+    );
+}
+
+async function runWrenFile(fileUri: Uri) {
+    const config = workspace.getConfiguration('wren.cli');
+    let cliPath = config.get<string>('path', '');
+    
+    if (!cliPath) {
+        // Try common CLI names
+        cliPath = 'wren-cli-std';
+    }
+    
+    const filePath = fileUri.fsPath;
+    
+    // Get or create terminal
+    if (!wrenTerminal || wrenTerminal.exitStatus !== undefined) {
+        wrenTerminal = window.createTerminal('Wren');
+    }
+    
+    wrenTerminal.show();
+    wrenTerminal.sendText(`${cliPath} "${filePath}"`);
 }
 
 export function deactivate(): Thenable<void> | undefined {
