@@ -76,6 +76,12 @@ gcc -c \
     -o "$BUILD_DIR/wren_opt_random.o" "$WREN_SRC/optional/wren_opt_random.c"
 
 # Create static library
+echo "Compiling callbacks..."
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_callbacks.o" "$SCRIPT_DIR/wren_callbacks.c"
+
 echo "Creating static library..."
 ar rcs "$BUILD_DIR/libwren.a" "$BUILD_DIR"/*.o
 

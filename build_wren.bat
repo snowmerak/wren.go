@@ -21,6 +21,9 @@ gcc -c -I "%WREN_SRC%\include" -I "%WREN_SRC%\vm" -I "%WREN_SRC%\optional" -std=
 gcc -c -I "%WREN_SRC%\include" -I "%WREN_SRC%\vm" -I "%WREN_SRC%\optional" -std=c99 -O2 -o "%BUILD_DIR%\wren_opt_meta.o" "%WREN_SRC%\optional\wren_opt_meta.c"
 gcc -c -I "%WREN_SRC%\include" -I "%WREN_SRC%\vm" -I "%WREN_SRC%\optional" -std=c99 -O2 -o "%BUILD_DIR%\wren_opt_random.o" "%WREN_SRC%\optional\wren_opt_random.c"
 
+echo Compiling callbacks...
+gcc -c -I "%WREN_SRC%\include" -std=c99 -O2 -o "%BUILD_DIR%\wren_callbacks.o" "%~dp0wren_callbacks.c"
+
 echo Creating static library...
 ar rcs "%BUILD_DIR%\libwren.a" "%BUILD_DIR%\*.o"
 

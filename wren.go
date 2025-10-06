@@ -5,6 +5,7 @@ package wrengo
 // #include <stdlib.h>
 // #include <string.h>
 // #include "wren.h"
+// #include "wren_callbacks.h"
 import "C"
 import (
 	"errors"
@@ -27,9 +28,14 @@ type WrenVM struct {
 }
 
 // NewVM creates a new Wren virtual machine with default configuration.
+// This VM includes stdout/stderr callbacks for System.print() output.
 func NewVM() *WrenVM {
 	var config C.WrenConfiguration
 	C.wrenInitConfiguration(&config)
+	
+	// Set default write and error callbacks
+	config.writeFn = C.WrenWriteFn(C.wrengoWriteFn)
+	config.errorFn = C.WrenErrorFn(C.wrengoErrorFn)
 
 	vm := &WrenVM{
 		vm: C.wrenNewVM(&config),
