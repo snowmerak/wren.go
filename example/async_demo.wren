@@ -1,5 +1,7 @@
 // Async API Example in Wren
 
+import "main" for Async
+
 class AsyncDemo {
   // Example: Check future state
   static checkState(futureId) {
