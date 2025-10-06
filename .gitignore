@@ -2,3 +2,4 @@
 build/
 *.exe
 wren.go.test.exe
+node_modules
