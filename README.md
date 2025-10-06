@@ -164,11 +164,20 @@ See [wrengen/README.md](./wrengen/README.md) for full documentation.
 
 ## Examples
 
-See the [example](./example) directory for more examples:
+### Quick Start
+
+Run the complete example demonstrating all features:
 
 ```bash
 go run example/main.go
 ```
+
+The example includes:
+- ✅ Basic Wren features (print, variables, classes, fibers)
+- ✅ Code-generated foreign functions (math, strings, calculator)
+- ✅ Complex calculations using multiple functions
+
+See [example/README.md](./example/README.md) for detailed documentation.
 
 ## Testing
 
