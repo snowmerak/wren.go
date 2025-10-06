@@ -12,11 +12,19 @@ import (
 	wrengo "github.com/snowmerak/wren.go"
 )
 
+// Document represents an open document.
+type Document struct {
+	URI     string
+	Content string
+	Version int
+}
+
 // Server represents an LSP server instance.
 type Server struct {
-	config Config
-	reader *bufio.Reader
-	writer io.Writer
+	config    Config
+	reader    *bufio.Reader
+	writer    io.Writer
+	documents map[string]*Document
 }
 
 // Config defines the configuration for the LSP server.
@@ -54,9 +62,10 @@ func NewServer(config Config) *Server {
 	}
 
 	return &Server{
-		config: config,
-		reader: bufio.NewReader(os.Stdin),
-		writer: os.Stdout,
+		config:    config,
+		reader:    bufio.NewReader(os.Stdin),
+		writer:    os.Stdout,
+		documents: make(map[string]*Document),
 	}
 }
 
@@ -219,13 +228,76 @@ func (s *Server) handleShutdown(id interface{}) map[string]interface{} {
 
 // handleDidOpen handles the textDocument/didOpen notification.
 func (s *Server) handleDidOpen(msg map[string]interface{}) map[string]interface{} {
-	// TODO: Store document and analyze
+	params, ok := msg["params"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	textDocument, ok := params["textDocument"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	uri, _ := textDocument["uri"].(string)
+	content, _ := textDocument["text"].(string)
+	version, _ := textDocument["version"].(float64)
+
+	// Store document
+	s.documents[uri] = &Document{
+		URI:     uri,
+		Content: content,
+		Version: int(version),
+	}
+
+	// Analyze and send diagnostics
+	s.publishDiagnostics(uri, content)
+
 	return nil
 }
 
 // handleDidChange handles the textDocument/didChange notification.
 func (s *Server) handleDidChange(msg map[string]interface{}) map[string]interface{} {
-	// TODO: Update document and analyze
+	params, ok := msg["params"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	textDocument, ok := params["textDocument"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	uri, _ := textDocument["uri"].(string)
+	version, _ := textDocument["version"].(float64)
+
+	contentChanges, ok := params["contentChanges"].([]interface{})
+	if !ok || len(contentChanges) == 0 {
+		return nil
+	}
+
+	// Full document sync - get the new content
+	change, ok := contentChanges[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	content, _ := change["text"].(string)
+
+	// Update document
+	if doc, exists := s.documents[uri]; exists {
+		doc.Content = content
+		doc.Version = int(version)
+	} else {
+		s.documents[uri] = &Document{
+			URI:     uri,
+			Content: content,
+			Version: int(version),
+		}
+	}
+
+	// Analyze and send diagnostics
+	s.publishDiagnostics(uri, content)
+
 	return nil
 }
 
@@ -260,20 +332,23 @@ func (s *Server) handleCompletion(id interface{}, msg map[string]interface{}) ma
 		})
 	}
 
+	// Add symbols from current document
+	params, ok := msg["params"].(map[string]interface{})
+	if ok {
+		textDocument, ok := params["textDocument"].(map[string]interface{})
+		if ok {
+			uri, _ := textDocument["uri"].(string)
+			symbols := s.extractSymbols(uri)
+			for _, symbol := range symbols {
+				completionItems = append(completionItems, symbol)
+			}
+		}
+	}
+
 	return map[string]interface{}{
 		"jsonrpc": "2.0",
 		"id":      id,
 		"result":  completionItems,
-	}
-}
-
-// handleHover handles the textDocument/hover request.
-func (s *Server) handleHover(id interface{}, msg map[string]interface{}) map[string]interface{} {
-	// TODO: Implement hover information
-	return map[string]interface{}{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result":  nil,
 	}
 }
 
@@ -293,3 +368,60 @@ func (s *Server) errorResponse(id interface{}, code int, message string) map[str
 func (s *Server) RegisterForeignMethod(info ForeignMethodInfo) {
 	s.config.ForeignMethods = append(s.config.ForeignMethods, info)
 }
+
+// publishDiagnostics analyzes the document and publishes diagnostics.
+func (s *Server) publishDiagnostics(uri, content string) {
+	if !s.config.EnableDiagnostics {
+		return
+	}
+
+	diagnostics := []map[string]interface{}{}
+
+	// Create a VM to check syntax
+	vm := s.config.OnVMCreate()
+	if vm == nil {
+		return
+	}
+	defer vm.Free()
+
+	// Capture errors using Interpret result
+	result, _ := vm.Interpret("main", content)
+
+	// If there's a compile error, create a diagnostic
+	// Note: We can't get exact line/column from current API,
+	// so we'll create a general diagnostic
+	if result == wrengo.ResultCompileError {
+		diagnostic := map[string]interface{}{
+			"range": map[string]interface{}{
+				"start": map[string]interface{}{
+					"line":      0,
+					"character": 0,
+				},
+				"end": map[string]interface{}{
+					"line":      0,
+					"character": 1,
+				},
+			},
+			"severity": 1, // Error
+			"source":   "wrenlsp",
+			"message":  "Syntax error in Wren code",
+		}
+		diagnostics = append(diagnostics, diagnostic)
+	}
+
+	// Send diagnostics notification
+	notification := map[string]interface{}{
+		"jsonrpc": "2.0",
+		"method":  "textDocument/publishDiagnostics",
+		"params": map[string]interface{}{
+			"uri":         uri,
+			"diagnostics": diagnostics,
+		},
+	}
+
+	s.writeMessage(notification)
+}
+
+
+
+
