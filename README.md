@@ -10,6 +10,9 @@ Wren is a small, fast, class-based concurrent scripting language designed for em
 - ✅ Execute Wren scripts
 - ✅ Memory management with automatic garbage collection
 - ✅ Custom configuration support
+- ✅ Foreign function/class bindings
+- ✅ Complete slot API for data exchange
+- ✅ **Code generator for automatic bindings**
 - ✅ Version information
 
 ## Prerequisites
@@ -134,6 +137,30 @@ defer vm.Free()
 ### Utilities
 
 - `GetVersionNumber()` - Get Wren version number
+
+## Code Generator (Wrengen)
+
+Automatically generate Wren bindings from annotated Go code!
+
+```go
+//go:generate go run github.com/snowmerak/wren.go/wrengen -dir .
+
+//wren:bind module=main
+type Math struct{}
+
+//wren:bind static
+func (m *Math) Multiply(a, b float64) float64 {
+    return a * b
+}
+```
+
+Run `go generate` and use in Wren:
+
+```wren
+System.print(Math.multiply(7, 6))  // 42
+```
+
+See [wrengen/README.md](./wrengen/README.md) for full documentation.
 
 ## Examples
 
