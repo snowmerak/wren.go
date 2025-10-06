@@ -33,7 +33,7 @@ type ForeignClass struct {
 type foreignRegistry struct {
 	mu      sync.RWMutex
 	methods map[string]map[string]map[string]ForeignMethodFn // module -> class -> signature -> func
-	classes map[string]map[string]*ForeignClass               // module -> class -> ForeignClass
+	classes map[string]map[string]*ForeignClass              // module -> class -> ForeignClass
 }
 
 var registry = &foreignRegistry{

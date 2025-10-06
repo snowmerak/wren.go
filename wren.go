@@ -32,7 +32,7 @@ type WrenVM struct {
 func NewVM() *WrenVM {
 	var config C.WrenConfiguration
 	C.wrenInitConfiguration(&config)
-	
+
 	// Set default write and error callbacks
 	config.writeFn = C.WrenWriteFn(C.wrengoWriteFn)
 	config.errorFn = C.WrenErrorFn(C.wrengoErrorFn)
