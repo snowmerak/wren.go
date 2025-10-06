@@ -20,6 +20,9 @@ func main() {
 	// Demonstrate multi-module usage
 	multiModuleExamples()
 
+	// Demonstrate multiple VMs running simultaneously
+	multipleVMsExample()
+
 	fmt.Println("\n=== All examples completed successfully! ===")
 }
 
@@ -201,11 +204,62 @@ System.print("\n13. Mixed Module Usage:")
 // Here we demonstrate using both modules
 var circleArea = Circle.area(3)
 var rectArea = Rectangle.area(4, 5)
-System.print("  Circle area + Rectangle area = %(circleArea + rectArea)")
+System.print("  Circle area + Rectangle area = %(circleArea + rectArea))")
 `
 
 	fmt.Println("\n  Using geometry module from main:")
 	mustInterpret(vm, "main", mainCode)
+}
+
+func multipleVMsExample() {
+	fmt.Println("\n=== Multiple VMs Example ===\n")
+	fmt.Println("14. Creating Multiple Independent VMs:")
+
+	// IMPORTANT: All VMs share the same foreign method registry
+	// RegisterForeignMethod is called globally via init()
+	// But each VM has its own execution context and wrapper functions
+
+	// Create first VM
+	vm1 := wrengo.NewVMWithForeign()
+	defer vm1.Free()
+
+	// Create second VM
+	vm2 := wrengo.NewVMWithForeign()
+	defer vm2.Free()
+
+	// Both VMs can use the same foreign methods
+	code := `
+class Calculator {
+  foreign static square(x)
+  foreign static sqrt(x)
+}
+
+System.print("  VM result: square(7) = %(Calculator.square(7))")
+`
+
+	fmt.Println("  VM1 executing:")
+	mustInterpret(vm1, "main", code)
+
+	fmt.Println("\n  VM2 executing (same code, independent context):")
+	mustInterpret(vm2, "main", code)
+
+	// Each VM maintains its own state
+	vm1Code := `
+var x = 10
+System.print("  VM1: x = %(x)")
+`
+	vm2Code := `
+var x = 20
+System.print("  VM2: x = %(x)")
+`
+
+	fmt.Println("\n15. Independent VM States:")
+	mustInterpret(vm1, "main", vm1Code)
+	mustInterpret(vm2, "main", vm2Code)
+
+	fmt.Println("\n  ✓ Each VM has its own independent execution context")
+	fmt.Println("  ✓ Foreign methods are registered globally but executed per-VM")
+	fmt.Println("  ✓ Each VM can handle up to 300 foreign methods")
 }
 
 func mustInterpret(vm *wrengo.WrenVM, module, source string) {

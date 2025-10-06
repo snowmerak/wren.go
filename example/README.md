@@ -16,7 +16,7 @@ go run .
 
 ## What's Included
 
-The example demonstrates **13 different features** in order:
+The example demonstrates **15 different features** in order:
 
 ### Basic Wren Features (1-4)
 
@@ -39,6 +39,54 @@ The example demonstrates **13 different features** in order:
 11. **Circle Calculations** - `geometry` module with Circle class
 12. **Rectangle Calculations** - `geometry` module with Rectangle class
 13. **Cross-Module Usage** - Import and use classes from different modules
+
+### Multiple VMs (14-15)
+
+14. **Creating Multiple VMs** - Two VMs executing the same code independently
+15. **Independent VM States** - Each VM has its own execution context
+
+## Multiple VMs: How It Works
+
+**Important:** You can create multiple VM instances simultaneously, but they share the same foreign method **registry**:
+
+```go
+// Foreign methods are registered globally (once via init())
+func init() {
+    RegisterWrenBindings()  // Called once for all VMs
+}
+
+// But each VM has independent execution
+vm1 := wrengo.NewVMWithForeign()
+vm2 := wrengo.NewVMWithForeign()
+```
+
+### Key Points
+
+- ✅ **Registry is global**: `RegisterForeignMethod()` stores methods in a global registry
+- ✅ **Execution is per-VM**: Each VM has its own:
+  - Execution context (variables, classes, state)
+  - Wrapper functions (up to 99 per VM)
+  - Memory and garbage collector
+- ✅ **Thread-safe**: Mutex-protected registry and VM data structures
+- ⚠️ **300 method limit per VM**: Each VM can use up to 300 foreign methods
+
+### Example
+
+```go
+// Both VMs can use the same foreign methods
+vm1 := wrengo.NewVMWithForeign()
+vm2 := wrengo.NewVMWithForeign()
+
+// VM1 has its own state
+vm1.Interpret("main", `var x = 10`)  // x = 10 in VM1
+
+// VM2 has completely independent state
+vm2.Interpret("main", `var x = 20`)  // x = 20 in VM2
+
+// Both can call the same foreign methods
+vm1.Interpret("main", `Calculator.square(5)`)  // Works in VM1
+vm2.Interpret("main", `Calculator.square(7)`)  // Works in VM2
+```
 
 ## File Structure
 
