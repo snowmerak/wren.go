@@ -1,5 +1,4 @@
 .serena
-*.o
-*.a
+build/
 *.exe
 wren.go.test.exe

@@ -1,0 +1,82 @@
+#!/bin/bash
+# build_wren.sh - Build Wren static library
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="$SCRIPT_DIR/build"
+WREN_SRC="$SCRIPT_DIR/deps/wren/src"
+
+# Create build directory
+mkdir -p "$BUILD_DIR"
+
+# Compile Wren sources
+echo "Compiling Wren sources..."
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_vm.o" "$WREN_SRC/vm/wren_vm.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_compiler.o" "$WREN_SRC/vm/wren_compiler.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_core.o" "$WREN_SRC/vm/wren_core.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_debug.o" "$WREN_SRC/vm/wren_debug.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_primitive.o" "$WREN_SRC/vm/wren_primitive.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_utils.o" "$WREN_SRC/vm/wren_utils.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_value.o" "$WREN_SRC/vm/wren_value.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_opt_meta.o" "$WREN_SRC/optional/wren_opt_meta.c"
+
+gcc -c \
+    -I "$WREN_SRC/include" \
+    -I "$WREN_SRC/vm" \
+    -I "$WREN_SRC/optional" \
+    -std=c99 -O2 \
+    -o "$BUILD_DIR/wren_opt_random.o" "$WREN_SRC/optional/wren_opt_random.c"
+
+# Create static library
+echo "Creating static library..."
+ar rcs "$BUILD_DIR/libwren.a" "$BUILD_DIR"/*.o
+
+echo "Build complete: $BUILD_DIR/libwren.a"

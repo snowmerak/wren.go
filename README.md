@@ -21,6 +21,33 @@ Wren is a small, fast, class-based concurrent scripting language designed for em
 
 ## Installation
 
+### As a Library (Recommended)
+
+When using as a dependency in your project:
+
+```bash
+go get github.com/snowmerak/wren.go
+```
+
+**Important**: Before building your project, you need to build the Wren static library once:
+
+```bash
+cd $GOPATH/src/github.com/snowmerak/wren.go  # or wherever go get placed it
+# On Linux/Mac
+./build_wren.sh
+# On Windows
+build_wren.bat
+```
+
+Or if using Go modules and your module cache:
+
+```bash
+cd $(go list -f '{{.Dir}}' github.com/snowmerak/wren.go)
+# Run the appropriate build script
+```
+
+### For Development
+
 1. Clone the repository with submodules:
 
 ```bash
@@ -31,9 +58,11 @@ cd wren.go
 2. Build the Wren static library:
 
 ```bash
-# On Windows with TDM-GCC
-C:\path\to\gcc.exe -c -I deps/wren/src/include -I deps/wren/src/vm -I deps/wren/src/optional -std=c99 -O2 deps/wren/src/vm/*.c deps/wren/src/optional/*.c
-C:\path\to\ar.exe rcs libwren.a *.o
+# On Linux/Mac
+./build_wren.sh
+
+# On Windows
+build_wren.bat
 ```
 
 3. Build the Go package:

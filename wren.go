@@ -1,7 +1,7 @@
 package wrengo
 
 // #cgo CFLAGS: -I${SRCDIR}/deps/wren/src/include
-// #cgo LDFLAGS: -L${SRCDIR} -lwren -lm
+// #cgo LDFLAGS: -L${SRCDIR}/build -lwren -lm
 // #include <stdlib.h>
 // #include <string.h>
 // #include "wren.h"
