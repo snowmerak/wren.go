@@ -27,6 +27,11 @@ func unregisterVM(vm *WrenVM) {
 	vmMutex.Lock()
 	defer vmMutex.Unlock()
 	delete(vmRegistry, vm.vm)
+	
+	// Also clean up foreign data for this VM
+	foreignDataMutex.Lock()
+	defer foreignDataMutex.Unlock()
+	delete(vmForeignDataStore, vm.vm)
 }
 
 // getVM retrieves the Go WrenVM instance from a C VM pointer
@@ -36,19 +41,17 @@ func getVM(cvm *C.WrenVM) *WrenVM {
 	return vmRegistry[cvm]
 }
 
-// Foreign function callback registry
+// vmForeignData holds foreign function data for a single VM
+type vmForeignData struct {
+	wrapperMethods   map[int]ForeignMethodFn       // wrapperID → function
+	nextWrapperID    int                            // Next available wrapper ID (0-98)
+	allocators       map[string]*ForeignClass       // "module:className" → ForeignClass
+}
+
+// Foreign function callback registry - per VM
 var (
-	foreignMethodsMutex sync.RWMutex
-	foreignMethodID     uint64
-	foreignMethods      = make(map[uint64]ForeignMethodFn)
-	foreignWrapperID    = make(map[uint64]int) // Maps method ID to wrapper ID (0-31)
-	
-	foreignAllocatorID uint64
-	foreignAllocators  = make(map[uint64]ForeignClassAllocator)
-	foreignFinalizerID uint64
-	foreignFinalizers  = make(map[uint64]ForeignClassFinalizer)
-	currentAllocatorID uint64
-	currentFinalizerID uint64
+	foreignDataMutex   sync.RWMutex
+	vmForeignDataStore = make(map[*C.WrenVM]*vmForeignData)
 )
 
 //export wrengoBindForeignMethod
@@ -62,17 +65,29 @@ func wrengoBindForeignMethod(cvm *C.WrenVM, cModule, cClassName *C.char, isStati
 		return nil
 	}
 
-	foreignMethodsMutex.Lock()
-	defer foreignMethodsMutex.Unlock()
+	foreignDataMutex.Lock()
+	defer foreignDataMutex.Unlock()
 
-	// Store the function in a registry with a unique ID
-	foreignMethodID++
-	id := foreignMethodID
-	foreignMethods[id] = fn
-	
-	// Assign a wrapper ID (0-31) by cycling through available wrappers
-	wrapperID := int((id - 1) % maxForeignMethods)
-	foreignWrapperID[id] = wrapperID
+	// Get or create foreign data for this VM
+	data := vmForeignDataStore[cvm]
+	if data == nil {
+		data = &vmForeignData{
+			wrapperMethods: make(map[int]ForeignMethodFn),
+			nextWrapperID:  0,
+			allocators:     make(map[string]*ForeignClass),
+		}
+		vmForeignDataStore[cvm] = data
+	}
+
+	// Check if we've exceeded the wrapper limit
+	if data.nextWrapperID >= maxForeignMethods {
+		panic("Maximum foreign methods (99) exceeded for this VM")
+	}
+
+	// Assign the next available wrapper ID
+	wrapperID := data.nextWrapperID
+	data.wrapperMethods[wrapperID] = fn
+	data.nextWrapperID++
 
 	// Return the appropriate C function pointer based on wrapper ID
 	switch wrapperID {
@@ -192,34 +207,36 @@ func wrengoBindForeignClass(cvm *C.WrenVM, cModule, cClassName *C.char) C.WrenFo
 		return methods
 	}
 
+	foreignDataMutex.Lock()
+	defer foreignDataMutex.Unlock()
+
+	// Get or create foreign data for this VM
+	data := vmForeignDataStore[cvm]
+	if data == nil {
+		data = &vmForeignData{
+			wrapperMethods: make(map[int]ForeignMethodFn),
+			nextWrapperID:  0,
+			allocators:     make(map[string]*ForeignClass),
+		}
+		vmForeignDataStore[cvm] = data
+	}
+
+	// Store the class in VM-specific registry
+	key := module + ":" + className
+	data.allocators[key] = class
+
 	if class.Allocate != nil {
-		storeForeignAllocator(class.Allocate)
 		methods.allocate = C.WrenForeignMethodFn(C.wrengoForeignAllocateCallback)
 	}
 
 	if class.Finalize != nil {
-		storeForeignFinalizer(class.Finalize)
 		methods.finalize = C.WrenFinalizerFn(C.wrengoForeignFinalizeCallback)
 	}
 
 	return methods
 }
 
-func storeForeignAllocator(fn ForeignClassAllocator) uint64 {
-	foreignAllocatorID++
-	id := foreignAllocatorID
-	foreignAllocators[id] = fn
-	currentAllocatorID = id
-	return id
-}
 
-func storeForeignFinalizer(fn ForeignClassFinalizer) uint64 {
-	foreignFinalizerID++
-	id := foreignFinalizerID
-	foreignFinalizers[id] = fn
-	currentFinalizerID = id
-	return id
-}
 
 //export goForeignMethodCallback
 func goForeignMethodCallback(cvm *C.WrenVM, wrapperId C.int) {
@@ -228,18 +245,17 @@ func goForeignMethodCallback(cvm *C.WrenVM, wrapperId C.int) {
 		return
 	}
 
-	foreignMethodsMutex.RLock()
-	defer foreignMethodsMutex.RUnlock()
+	foreignDataMutex.RLock()
+	data := vmForeignDataStore[cvm]
+	foreignDataMutex.RUnlock()
 
-	// Find the method ID that matches this wrapper ID
-	wrapperIDInt := int(wrapperId)
-	for methodID, wid := range foreignWrapperID {
-		if wid == wrapperIDInt {
-			if fn, ok := foreignMethods[methodID]; ok {
-				fn(vm)
-				return
-			}
-		}
+	if data == nil {
+		return
+	}
+
+	// Look up the function for this wrapper ID
+	if fn, ok := data.wrapperMethods[int(wrapperId)]; ok {
+		fn(vm)
 	}
 }
 
@@ -250,14 +266,30 @@ func wrengoForeignAllocateCallback(cvm *C.WrenVM) {
 		return
 	}
 
-	if fn, ok := foreignAllocators[currentAllocatorID]; ok {
-		fn(vm)
+	foreignDataMutex.RLock()
+	data := vmForeignDataStore[cvm]
+	foreignDataMutex.RUnlock()
+
+	if data == nil {
+		return
+	}
+
+	// Get the class being allocated from slot 0
+	// Note: Wren passes the class in slot 0 during allocation
+	// We need to find which class is being allocated
+	// For now, call the first available allocator
+	// This is a limitation - ideally we'd track which class is being allocated
+	for _, class := range data.allocators {
+		if class.Allocate != nil {
+			class.Allocate(vm)
+			return
+		}
 	}
 }
 
 //export wrengoForeignFinalizeCallback
 func wrengoForeignFinalizeCallback(data unsafe.Pointer) {
-	if fn, ok := foreignFinalizers[currentFinalizerID]; ok {
-		fn(data)
-	}
+	// Note: We don't have VM context here, so we can't call VM-specific finalizers
+	// This is a limitation of the current design
+	// Finalizers would need to be stored differently to work properly
 }

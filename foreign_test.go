@@ -131,3 +131,59 @@ System.print(MapUtils.hasKey(dict, "missing"))
 		t.Fatalf("Expected ResultSuccess, got %v", result)
 	}
 }
+
+func TestMultipleVMs(t *testing.T) {
+	// Register different methods for different modules
+	wrengo.RegisterForeignMethod("vm1", "Math", true, "add(_,_)", func(vm *wrengo.WrenVM) {
+		a := vm.GetSlotDouble(1)
+		b := vm.GetSlotDouble(2)
+		vm.SetSlotDouble(0, a+b)
+	})
+
+	wrengo.RegisterForeignMethod("vm2", "Math", true, "multiply(_,_)", func(vm *wrengo.WrenVM) {
+		a := vm.GetSlotDouble(1)
+		b := vm.GetSlotDouble(2)
+		vm.SetSlotDouble(0, a*b)
+	})
+
+	// Create two VMs
+	vm1 := wrengo.NewVMWithForeign()
+	defer vm1.Free()
+
+	vm2 := wrengo.NewVMWithForeign()
+	defer vm2.Free()
+
+	// Test VM1 with add
+	code1 := `
+class Math {
+  foreign static add(a, b)
+}
+
+System.print(Math.add(10, 20))
+`
+
+	result1, err := vm1.Interpret("vm1", code1)
+	if err != nil {
+		t.Fatalf("VM1 Interpret error: %v", err)
+	}
+	if result1 != wrengo.ResultSuccess {
+		t.Fatalf("VM1: Expected ResultSuccess, got %v", result1)
+	}
+
+	// Test VM2 with multiply
+	code2 := `
+class Math {
+  foreign static multiply(a, b)
+}
+
+System.print(Math.multiply(7, 6))
+`
+
+	result2, err := vm2.Interpret("vm2", code2)
+	if err != nil {
+		t.Fatalf("VM2 Interpret error: %v", err)
+	}
+	if result2 != wrengo.ResultSuccess {
+		t.Fatalf("VM2: Expected ResultSuccess, got %v", result2)
+	}
+}
