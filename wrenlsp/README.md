@@ -4,9 +4,10 @@
 
 ## Features
 
-- ✅ **Completion**: Keyword and foreign method autocompletion
-- ✅ **Hover**: Hover information for symbols (planned)
-- ✅ **Diagnostics**: Syntax error detection (planned)
+- ✅ **Completion**: Keywords + Built-in classes (System, Fiber, List, Map, etc.) + Async (Future, AsyncManager) + Custom foreign methods + Document symbols
+- ✅ **Hover**: Hover information for built-in and foreign methods
+- ✅ **Diagnostics**: Syntax error detection via Wren VM
+- ✅ **Document Storage**: Tracks open documents and changes
 - ✅ **Customizable**: Inject custom VM with foreign methods
 
 ## Quick Start
@@ -154,10 +155,31 @@ func (s *Server) Serve() error
 
 ### Planned
 
-- 🚧 **textDocument/hover**: Hover information
 - 🚧 **textDocument/definition**: Go to definition
-- 🚧 **textDocument/publishDiagnostics**: Syntax error diagnostics
 - 🚧 **textDocument/formatting**: Code formatting
+- 🚧 **Workspace symbols**: Search symbols across files
+
+## Built-in Symbol Support
+
+The LSP server includes autocompletion and hover information for:
+
+### Core Wren Classes
+- **System**: `print(_)`, `write(_)`, `clock`, `gc()`
+- **Fiber**: `new(_)`, `yield()`, `call()`
+- **List**: `add(_)`, `clear()`, `count`, `insert(_,_)`, `removeAt(_)`
+- **Map**: `clear()`, `containsKey(_)`, `count`, `keys`, `values`, `remove(_)`
+- **String**: `contains(_)`, `count`, `startsWith(_)`, `endsWith(_)`
+- **Num**: `abs`, `ceil`, `floor`, `isNan`, `toString`
+
+### Async Module (wren.go)
+- **Future**: `new(_)`, `then(_)`, `wait()`
+- **AsyncManager**: `new()`, `submit(_)`, `wait()`, `shutdown()`
+
+All built-in methods include:
+- ✅ Method signatures
+- ✅ Documentation
+- ✅ Hover support
+- ✅ Autocompletion
 
 ## Examples
 

@@ -61,6 +61,9 @@ func NewServer(config Config) *Server {
 		config.EnableDiagnostics = true
 	}
 
+	// Add built-in Wren symbols
+	config.ForeignMethods = append(config.ForeignMethods, builtinSymbols...)
+
 	return &Server{
 		config:    config,
 		reader:    bufio.NewReader(os.Stdin),

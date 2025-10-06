@@ -26,6 +26,12 @@ func TestServerCreation(t *testing.T) {
 func TestForeignMethodRegistration(t *testing.T) {
 	server := NewServer(Config{})
 
+	// Count builtins first
+	builtinCount := len(server.config.ForeignMethods)
+	if builtinCount == 0 {
+		t.Error("Expected built-in methods to be registered")
+	}
+
 	info := ForeignMethodInfo{
 		Module:    "test",
 		Class:     "TestClass",
@@ -37,12 +43,14 @@ func TestForeignMethodRegistration(t *testing.T) {
 
 	server.RegisterForeignMethod(info)
 
-	if len(server.config.ForeignMethods) != 1 {
-		t.Errorf("Expected 1 foreign method, got %d", len(server.config.ForeignMethods))
+	if len(server.config.ForeignMethods) != builtinCount+1 {
+		t.Errorf("Expected %d foreign methods, got %d", builtinCount+1, len(server.config.ForeignMethods))
 	}
 
-	if server.config.ForeignMethods[0].Method != "testMethod" {
-		t.Errorf("Expected method name 'testMethod', got '%s'", server.config.ForeignMethods[0].Method)
+	// Check the last one (our custom method)
+	lastMethod := server.config.ForeignMethods[len(server.config.ForeignMethods)-1]
+	if lastMethod.Method != "testMethod" {
+		t.Errorf("Expected method name 'testMethod', got '%s'", lastMethod.Method)
 	}
 }
 
