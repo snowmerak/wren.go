@@ -178,24 +178,7 @@ The example includes:
 - ✅ Code-generated foreign functions (math, strings, calculator)
 - ✅ Complex calculations using multiple functions
 
-See [example/README.md](./example/README.md) for detailed documentation.
-
-### Async Example
-
-Run the async task execution example:
-
-```bash
-go run example/async/main.go
-```
-
-Features:
-- ✅ Future-based async operations
-- ✅ Worker pool management
-- ✅ Task cancellation and timeouts
-- ✅ Context support
-- ✅ Multiple concurrent tasks
-
-See [example/async/README.md](./example/async/README.md) for full documentation.
+See [example/README.md](./example/README.md) for detailed documentation (includes async examples).
 
 ## Testing
 

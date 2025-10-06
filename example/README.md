@@ -16,7 +16,7 @@ go run .
 
 ## What's Included
 
-The example demonstrates **15 different features** in order:
+The example demonstrates **20 different features** in order:
 
 ### Basic Wren Features (1-4)
 
@@ -44,6 +44,14 @@ The example demonstrates **15 different features** in order:
 
 14. **Creating Multiple VMs** - Two VMs executing the same code independently
 15. **Independent VM States** - Each VM has its own execution context
+
+### Async Task Execution (16-20)
+
+16. **Basic Async Task** - Submit and wait for async computations
+17. **Multiple Concurrent Tasks** - Run multiple tasks in parallel
+18. **Task with Timeout** - Context-based timeout handling
+19. **Task Cancellation** - Cancel long-running tasks
+20. **Non-blocking Future Check** - Poll for results without blocking
 
 ## Multiple VMs: How It Works
 
@@ -317,6 +325,61 @@ Distance: 5
   Circle area + Rectangle area = 48.274333882308
 
 === All examples completed successfully! ===
+```
+
+## Async Examples
+
+The example also includes **5 async task execution examples** demonstrating the Future-based async system:
+
+### How It Works
+
+The async system uses a **Future pattern** with a managed worker pool:
+
+```go
+// Get the global async manager
+am := wrengo.GetAsyncManager()
+
+// Submit a task
+future := am.Submit(func(ctx context.Context) (interface{}, error) {
+    time.Sleep(1 * time.Second)
+    return "result", nil
+})
+
+// Wait for completion (blocking)
+result, err := future.Wait()
+
+// Or check without blocking
+if future.IsReady() {
+    result, err := future.Get()
+}
+```
+
+### Key Features
+
+- ✅ **Worker Pool**: Configurable number of goroutines (default: 4)
+- ✅ **Future Pattern**: Check status, wait, or poll for results
+- ✅ **Context Support**: Timeouts and cancellation via context
+- ✅ **Thread-Safe**: Safe for concurrent use
+- ✅ **Error Handling**: Errors captured in Future
+
+### Examples in main.go
+
+16. **Basic Task** - Simple async execution with Wait()
+17. **Concurrent Tasks** - Submit multiple tasks at once
+18. **Timeout** - Cancel task after deadline
+19. **Cancellation** - Manually cancel ongoing work
+20. **Polling** - Check readiness without blocking
+
+### Future API
+
+```go
+future := am.Submit(task)
+future.ID()           // Get unique ID
+future.IsReady()      // Check if completed
+future.State()        // Get current state (Pending/Completed/Failed/Cancelled)
+future.Wait()         // Block until done
+future.Get()          // Get result if ready
+future.Cancel()       // Cancel execution
 ```
 
 ## Learn More
