@@ -41,6 +41,7 @@ func NewVM() *WrenVM {
 		vm: C.wrenNewVM(&config),
 	}
 
+	registerVM(vm)
 	runtime.SetFinalizer(vm, (*WrenVM).Free)
 	return vm
 }
@@ -60,6 +61,7 @@ func NewVMWithConfig(config *Configuration) *WrenVM {
 // Free disposes of all resources used by the VM.
 func (vm *WrenVM) Free() {
 	if vm.vm != nil {
+		unregisterVM(vm)
 		C.wrenFreeVM(vm.vm)
 		vm.vm = nil
 	}
