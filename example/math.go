@@ -52,3 +52,24 @@ func Sqrt(x float64) float64 {
 func Power(base, exponent float64) float64 {
 	return math.Pow(base, exponent)
 }
+
+// Geometry module - demonstrates different module usage
+//wren:bind module=geometry class=Circle name=area static
+func CircleArea(radius float64) float64 {
+	return math.Pi * radius * radius
+}
+
+//wren:bind module=geometry class=Circle name=circumference static
+func CircleCircumference(radius float64) float64 {
+	return 2 * math.Pi * radius
+}
+
+//wren:bind module=geometry class=Rectangle name=area static
+func RectangleArea(width, height float64) float64 {
+	return width * height
+}
+
+//wren:bind module=geometry class=Rectangle name=perimeter static
+func RectanglePerimeter(width, height float64) float64 {
+	return 2 * (width + height)
+}

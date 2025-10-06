@@ -16,7 +16,7 @@ go run .
 
 ## What's Included
 
-The example demonstrates **9 different features** in order:
+The example demonstrates **13 different features** in order:
 
 ### Basic Wren Features (1-4)
 
@@ -32,6 +32,13 @@ The example demonstrates **9 different features** in order:
 7. **Utility Functions** - `Utils.greet`
 8. **Calculator Functions** - `square`, `sqrt`, `power`
 9. **Complex Calculation** - Pythagorean theorem using multiple functions
+
+### Multi-Module Usage (10-13)
+
+10. **Loading Modules** - Define foreign classes in separate modules
+11. **Circle Calculations** - `geometry` module with Circle class
+12. **Rectangle Calculations** - `geometry` module with Rectangle class
+13. **Cross-Module Usage** - Import and use classes from different modules
 
 ## File Structure
 
@@ -84,6 +91,70 @@ class Math {
 
 System.print(Math.multiply(7, 6))  // 42
 ```
+
+## Multi-Module Example
+
+The example also demonstrates how to use **different modules** in Wren:
+
+### 1. Define Foreign Functions in Different Modules
+
+In `math.go`, you can specify different modules:
+
+```go
+// Main module functions
+//wren:bind module=main class=Calculator name=sqrt static
+func Sqrt(x float64) float64 {
+    return math.Sqrt(x)
+}
+
+// Geometry module functions
+//wren:bind module=geometry class=Circle name=area static
+func CircleArea(radius float64) float64 {
+    return math.Pi * radius * radius
+}
+
+//wren:bind module=geometry class=Rectangle name=area static
+func RectangleArea(width, height float64) float64 {
+    return width * height
+}
+```
+
+### 2. Define the Module in Wren
+
+First, interpret the module definition:
+
+```go
+geometryModule := `
+class Circle {
+  foreign static area(radius)
+  foreign static circumference(radius)
+}
+
+class Rectangle {
+  foreign static area(width, height)
+  foreign static perimeter(width, height)
+}
+`
+
+vm.Interpret("geometry", geometryModule)
+```
+
+### 3. Import and Use in Another Module
+
+Then use `import` to access the classes:
+
+```wren
+import "geometry" for Circle, Rectangle
+
+System.print("Circle area: %(Circle.area(5))")
+System.print("Rectangle area: %(Rectangle.area(10, 6))")
+```
+
+**Key Points:**
+- Each module can have its own foreign classes
+- Use `import "module_name" for Class1, Class2` to access classes
+- The same VM can handle multiple modules simultaneously
+- Foreign methods are registered per-module in the code generator
 
 ## Annotations Reference
 
@@ -177,6 +248,25 @@ Distance: 5
 
 9. Complex Calculation (Pythagorean):
   For triangle (3, 4): c = 5
+
+=== Multi-Module Examples ===
+
+10. Loading Geometry Module:
+
+  Using geometry module from main:
+
+11. Circle Calculations:
+  Circle with radius 5:
+  - Area: 78.539816339745
+  - Circumference: 31.415926535898
+
+12. Rectangle Calculations:
+  Rectangle with width 10 and height 6:
+  - Area: 60
+  - Perimeter: 32
+
+13. Mixed Module Usage:
+  Circle area + Rectangle area = 48.274333882308
 
 === All examples completed successfully! ===
 ```

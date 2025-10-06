@@ -78,4 +78,34 @@ func RegisterWrenBindings() {
 		vm.SetSlotDouble(0, float64(result))
 	})
 
+	// Circle.area
+	wrengo.RegisterForeignMethod("geometry", "Circle", true, "area(_)", func(vm *wrengo.WrenVM) {
+		radius := float64(vm.GetSlotDouble(1))
+		result := CircleArea(radius)
+		vm.SetSlotDouble(0, float64(result))
+	})
+
+	// Circle.circumference
+	wrengo.RegisterForeignMethod("geometry", "Circle", true, "circumference(_)", func(vm *wrengo.WrenVM) {
+		radius := float64(vm.GetSlotDouble(1))
+		result := CircleCircumference(radius)
+		vm.SetSlotDouble(0, float64(result))
+	})
+
+	// Rectangle.area
+	wrengo.RegisterForeignMethod("geometry", "Rectangle", true, "area(_,_)", func(vm *wrengo.WrenVM) {
+		width := float64(vm.GetSlotDouble(1))
+		height := float64(vm.GetSlotDouble(2))
+		result := RectangleArea(width, height)
+		vm.SetSlotDouble(0, float64(result))
+	})
+
+	// Rectangle.perimeter
+	wrengo.RegisterForeignMethod("geometry", "Rectangle", true, "perimeter(_,_)", func(vm *wrengo.WrenVM) {
+		width := float64(vm.GetSlotDouble(1))
+		height := float64(vm.GetSlotDouble(2))
+		result := RectanglePerimeter(width, height)
+		vm.SetSlotDouble(0, float64(result))
+	})
+
 }

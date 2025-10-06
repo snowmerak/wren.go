@@ -17,6 +17,9 @@ func main() {
 	// Run code generator examples with foreign functions
 	codeGenExamples()
 
+	// Demonstrate multi-module usage
+	multiModuleExamples()
+
 	fmt.Println("\n=== All examples completed successfully! ===")
 }
 
@@ -132,7 +135,8 @@ System.print("  StringUtils.concat = %(StringUtils.concat(hello, world))")
 
 // Utility functions
 System.print("\n7. Utility Functions:")
-System.print("  Utils.greet('Developer') = %(Utils.greet("Developer"))")
+var devName = "Developer"
+System.print("  Utils.greet('Developer') = %(Utils.greet(devName))")
 
 // Calculator functions
 System.print("\n8. Calculator Functions:")
@@ -149,6 +153,59 @@ System.print("  For triangle (3, 4): c = %(c)")
 `
 
 	mustInterpret(vm, "main", code)
+}
+
+func multiModuleExamples() {
+	fmt.Println("\n=== Multi-Module Examples ===\n")
+
+	// Create VM with foreign functions
+	vm := wrengo.NewVMWithForeign()
+	defer vm.Free()
+
+	// First, define the geometry module with foreign classes
+	geometryModule := `
+// geometry.wren - Geometry module
+class Circle {
+  foreign static area(radius)
+  foreign static circumference(radius)
+}
+
+class Rectangle {
+  foreign static area(width, height)
+  foreign static perimeter(width, height)
+}
+`
+
+	fmt.Println("10. Loading Geometry Module:")
+	mustInterpret(vm, "geometry", geometryModule)
+
+	// Now import and use the geometry module from main
+	mainCode := `
+import "geometry" for Circle, Rectangle
+
+System.print("11. Circle Calculations:")
+var radius = 5
+System.print("  Circle with radius %(radius):")
+System.print("  - Area: %(Circle.area(radius))")
+System.print("  - Circumference: %(Circle.circumference(radius))")
+
+System.print("\n12. Rectangle Calculations:")
+var width = 10
+var height = 6
+System.print("  Rectangle with width %(width) and height %(height):")
+System.print("  - Area: %(Rectangle.area(width, height))")
+System.print("  - Perimeter: %(Rectangle.perimeter(width, height))")
+
+System.print("\n13. Mixed Module Usage:")
+// You can also import from main module if needed
+// Here we demonstrate using both modules
+var circleArea = Circle.area(3)
+var rectArea = Rectangle.area(4, 5)
+System.print("  Circle area + Rectangle area = %(circleArea + rectArea)")
+`
+
+	fmt.Println("\n  Using geometry module from main:")
+	mustInterpret(vm, "main", mainCode)
 }
 
 func mustInterpret(vm *wrengo.WrenVM, module, source string) {
