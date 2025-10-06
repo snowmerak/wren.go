@@ -33,6 +33,9 @@ python build.py wren
 # Build only Go CLI
 python build.py cli
 
+# Build only LSP server
+python build.py lsp
+
 # Run tests
 python build.py test
 
@@ -85,16 +88,18 @@ Binaries are created in the `bin/` directory:
 **Linux/macOS:**
 ```
 bin/
-└── wren-std       # Standard CLI (single file)
+├── wren-std       # Standard CLI (single file)
+└── wren-lsp-std   # LSP server (single file)
 ```
 
 **Windows:**
 ```
 bin/
 ├── wren-std.exe              # Standard CLI
-├── libgcc_s_seh_64-1.dll     # GCC runtime
-├── libwinpthread_64-1.dll    # pthread support
-└── libstdc++_64-6.dll        # C++ stdlib
+├── wren-lsp-std.exe          # LSP server
+├── libgcc_s_seh_64-1.dll     # GCC runtime (shared)
+├── libwinpthread_64-1.dll    # pthread support (shared)
+└── libstdc++_64-6.dll        # C++ stdlib (shared)
 ```
 
 **Note**: On Windows, distribute the entire `bin/` directory with all DLLs.

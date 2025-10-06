@@ -14,6 +14,8 @@ Wren is a small, fast, class-based concurrent scripting language designed for em
 - ✅ Complete slot API for data exchange
 - ✅ **Code generator for automatic bindings**
 - ✅ **Asynchronous task execution system**
+- ✅ **CLI framework and REPL**
+- ✅ **LSP (Language Server Protocol) support**
 - ✅ Version information
 
 ## Prerequisites
@@ -162,6 +164,44 @@ System.print(Math.multiply(7, 6))  // 42
 ```
 
 See [wrengen/README.md](./wrengen/README.md) for full documentation.
+
+## Tools
+
+### wrencli - Command Line Interface
+
+Interactive REPL and script runner for Wren:
+
+```bash
+# Build CLI
+python build.py cli
+
+# Run REPL
+./bin/wren-std repl
+
+# Run script
+./bin/wren-std run script.wren
+
+# Evaluate expression
+./bin/wren-std eval "System.print(42)"
+```
+
+See [wrencli/README.md](./wrencli/README.md) for full documentation.
+
+### wrenlsp - Language Server Protocol
+
+LSP server for editor integration:
+
+```bash
+# Build LSP server
+python build.py lsp
+
+# Test the server
+python test_lsp.py
+```
+
+Use with VS Code, Vim, or any LSP-compatible editor.
+
+See [wrenlsp/README.md](./wrenlsp/README.md) for full documentation.
 
 ## Examples
 

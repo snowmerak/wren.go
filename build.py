@@ -289,8 +289,8 @@ def run_tests(package=None):
 def main():
     parser = argparse.ArgumentParser(description='Build wren.go projects')
     parser.add_argument('command', nargs='?', default='all',
-                       choices=['all', 'wren', 'cli', 'clean', 'test'],
-                       help='Build command')
+                        choices=['all', 'wren', 'cli', 'lsp', 'test', 'clean'],
+                        help='Build command')
     parser.add_argument('--no-static', action='store_true',
                        help='Disable static linking')
     parser.add_argument('--target', default='cmd/wren-std',
@@ -325,9 +325,17 @@ def main():
         if not build_wren_library():
             return 1
     
-    # Build Go binary
+    # Build Go binaries
     if args.command in ['all', 'cli']:
+        # Build CLI
         if not build_go_binary(args.target, args.output, static=not args.no_static, copy_dlls=not args.no_copy_dlls):
+            return 1
+    
+    if args.command in ['all', 'lsp']:
+        # Build LSP server
+        lsp_target = 'cmd/wren-lsp-std'
+        lsp_output = f'wren-lsp-std'
+        if not build_go_binary(lsp_target, lsp_output, static=not args.no_static, copy_dlls=False):
             return 1
     
     print()
