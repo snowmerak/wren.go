@@ -1,8 +1,8 @@
 {
-  "name": "wren-lsp-vscode",
-  "displayName": "Wren Language Support",
-  "description": "Wren language support with LSP",
-  "version": "0.1.0",
+  "name": "gwen-lsp-vscode",
+  "displayName": "Gwen Language Support",
+  "description": "Gwen/Wren language support with LSP",
+  "version": "0.2.0",
   "publisher": "snowmerak",
   "license": "MIT",
   "repository": {
@@ -17,8 +17,11 @@
   ],
   "activationEvents": [
     "onLanguage:wren",
+    "onLanguage:gwen",
     "onCommand:wren.runFile",
-    "onCommand:wren.runCurrentFile"
+    "onCommand:wren.runCurrentFile",
+    "onCommand:gwen.runFile",
+    "onCommand:gwen.runCurrentFile"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -28,6 +31,12 @@
         "aliases": ["Wren", "wren"],
         "extensions": [".wren"],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "gwen",
+        "aliases": ["Gwen", "gwen"],
+        "extensions": [".gwen"],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -35,21 +44,36 @@
         "language": "wren",
         "scopeName": "source.wren",
         "path": "./syntaxes/wren.tmLanguage.json"
+      },
+      {
+        "language": "gwen",
+        "scopeName": "source.gwen",
+        "path": "./syntaxes/wren.tmLanguage.json"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "Wren LSP",
+      "title": "Gwen/Wren LSP",
       "properties": {
         "wren.lsp.serverPath": {
           "type": "string",
           "default": "",
-          "description": "Path to wren-lsp-std executable"
+          "description": "Path to gwen-lsp executable"
         },
         "wren.cli.path": {
           "type": "string",
           "default": "",
-          "description": "Path to Wren CLI executable (wren-cli-std or wrencli)"
+          "description": "Path to Gwen CLI executable (gwen)"
+        },
+        "gwen.lsp.serverPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to gwen-lsp executable"
+        },
+        "gwen.cli.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Gwen CLI executable (gwen)"
         }
       }
     },
@@ -63,6 +87,16 @@
         "command": "wren.runCurrentFile",
         "title": "Wren: Run Current File",
         "category": "Wren"
+      },
+      {
+        "command": "gwen.runFile",
+        "title": "Gwen: Run File",
+        "category": "Gwen"
+      },
+      {
+        "command": "gwen.runCurrentFile",
+        "title": "Gwen: Run Current File",
+        "category": "Gwen"
       }
     ],
     "menus": {
@@ -71,12 +105,22 @@
           "when": "resourceLangId == wren",
           "command": "wren.runCurrentFile",
           "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == gwen",
+          "command": "gwen.runCurrentFile",
+          "group": "navigation"
         }
       ],
       "explorer/context": [
         {
           "when": "resourceExtname == .wren",
           "command": "wren.runFile",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceExtname == .gwen",
+          "command": "gwen.runFile",
           "group": "navigation"
         }
       ]

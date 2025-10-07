@@ -214,7 +214,7 @@ func wrengoForeignMethod_{{$method.Index}}(vm *wrengo.WrenVM) {
 		log.Fatal(err)
 	}
 	
-	file, err := os.Create("cmd/wren-std/builtin_wren.go")
+	file, err := os.Create("cmd/gwen/builtin_wren.go")
 	if err != nil {
 		log.Fatal(err)
 	}
