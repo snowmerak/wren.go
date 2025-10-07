@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -116,7 +117,15 @@ func generateDoc(module, class, signature string) string {
 }
 
 func generateLSPBuiltins(modules []ModuleInfo) {
-	file, err := os.Create("../wrenlsp/builtins_generated.go")
+	// Get the output path relative to the working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	outputPath := filepath.Join(wd, "wrenlsp", "builtins_generated.go")
+	
+	file, err := os.Create(outputPath)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -120,6 +120,53 @@ def build_wren_library():
         print_error(f"Failed to build Wren library:\n{output}")
         return False
 
+def generate_builtin_code():
+    """Generate builtin FFI bindings and LSP symbols"""
+    print_step("Generating builtin code...")
+    
+    # Get current working directory for absolute paths
+    root_dir = os.getcwd()
+    
+    # Step 1: Generate builtin_wren.go using wrengen
+    print_step("Running wrengen to generate FFI bindings...")
+    cmd = ['go', 'run', './cmd/wrengen', '-dir', 'builtin']
+    success, output = run_command(cmd)
+    
+    if not success:
+        print_error(f"Failed to generate FFI bindings:\n{output}")
+        return False
+    
+    print_success("FFI bindings generated")
+    
+    # Step 2: Build wrenlsp-gen tool if it doesn't exist
+    system, _, ext = get_platform_info()
+    wrenlsp_gen_path = os.path.join(root_dir, f"wrenlsp-gen{ext}")
+    
+    if not os.path.exists(wrenlsp_gen_path):
+        print_step("Building wrenlsp-gen tool...")
+        cmd = ['go', 'build', '-o', wrenlsp_gen_path, './cmd/wrenlsp-gen/main.go']
+        success, output = run_command(cmd)
+        
+        if not success:
+            print_error(f"Failed to build wrenlsp-gen:\n{output}")
+            return False
+        
+        print_success("wrenlsp-gen tool built")
+    
+    # Step 3: Generate LSP builtin symbols
+    print_step("Generating LSP builtin symbols...")
+    builtin_wren_path = os.path.join(root_dir, 'cmd', 'gwen', 'builtin_wren.go')
+    cmd = [wrenlsp_gen_path, builtin_wren_path]
+    success, output = run_command(cmd)
+    
+    if not success:
+        print_error(f"Failed to generate LSP symbols:\n{output}")
+        return False
+    
+    print_success("LSP builtin symbols generated")
+    print_success("All builtin code generated successfully")
+    return True
+
 def copy_mingw_dlls(output_dir):
     """Copy required MinGW DLLs to output directory on Windows"""
     system = platform.system().lower()
@@ -289,8 +336,8 @@ def run_tests(package=None):
 def main():
     parser = argparse.ArgumentParser(description='Build wren.go projects')
     parser.add_argument('command', nargs='?', default='all',
-                        choices=['all', 'wren', 'cli', 'lsp', 'test', 'clean'],
-                        help='Build command')
+                        choices=['all', 'wren', 'cli', 'lsp', 'generate', 'test', 'clean'],
+                        help='Build command (all: full build, wren: C library only, cli: Go CLI only, lsp: Go LSP only, generate: code generation only, test: run tests, clean: clean artifacts)')
     parser.add_argument('--no-static', action='store_true',
                        help='Disable static linking')
     parser.add_argument('--target', default='cmd/gwen',
@@ -320,9 +367,18 @@ def main():
         success = run_tests()
         return 0 if success else 1
     
+    if args.command == 'generate':
+        success = generate_builtin_code()
+        return 0 if success else 1
+    
     # Build Wren library
     if args.command in ['all', 'wren']:
         if not build_wren_library():
+            return 1
+    
+    # Generate builtin code
+    if args.command in ['all', 'wren', 'cli', 'lsp']:
+        if not generate_builtin_code():
             return 1
     
     # Build Go binaries
