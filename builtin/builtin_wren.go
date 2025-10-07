@@ -45,4 +45,244 @@ func RegisterWrenBindings() {
 		}
 	})
 
+	// Math.sqrt(_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "sqrt(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Sqrt(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.pow(_,_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "pow(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Pow(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.sin(_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "sin(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Sin(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.cos(_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "cos(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Cos(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.abs(_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "abs(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Abs(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.max(_,_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "max(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Max(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.min(_,_)
+	wrengo.RegisterForeignMethod("math", "Math", true, "min(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Min(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Math.pi
+	wrengo.RegisterForeignMethod("math", "Math", true, "pi(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Math{}
+		result := receiver.Pi(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.atoi(_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "atoi(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.Atoi(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.parseFloat(_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseFloat(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.ParseFloat(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.itoa(_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "itoa(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.Itoa(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.formatFloat(_,_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatFloat(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.FormatFloat(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.parseBool(_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseBool(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.ParseBool(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// StrConv.formatBool(_)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatBool(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &StrConv{}
+		result := receiver.FormatBool(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.upper(_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "upper(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.ToUpper(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.lower(_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "lower(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.ToLower(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.trim(_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "trim(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.Trim(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.contains(_,_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "contains(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.Contains(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.split(_,_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "split(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.Split(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
+	// Strings.join(_,_)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "join(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
+		receiver := &Strings{}
+		result := receiver.Join(vm)
+		if result != nil {
+			vm.SetSlotString(0, result.Error())
+			vm.AbortFiber(0)
+			return
+		}
+	})
+
 }

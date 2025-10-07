@@ -1,6 +1,7 @@
 package builtin
 
 //go:generate go run ../wrengen -dir .
+//go:generate ./wrenlsp-gen.exe ../gwen/builtin_wren.go
 
 import (
 	"context"
