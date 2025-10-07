@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	_ "github.com/snowmerak/wren.go/builtin" // Import builtin async functions
 	wrengo "github.com/snowmerak/wren.go"
 	"github.com/snowmerak/wren.go/wrencli"
 )

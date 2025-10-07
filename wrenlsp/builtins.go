@@ -319,4 +319,30 @@ var builtinSymbols = []ForeignMethodInfo{
 		IsStatic:  false,
 		Doc:       "Shuts down the async manager.",
 	},
+
+	// Async - Built-in async utilities
+	{
+		Module:    "main",
+		Class:     "Async",
+		Method:    "sleep",
+		Signature: "sleep(_)",
+		IsStatic:  true,
+		Doc:       "Creates a future that completes after specified seconds. Returns future ID.",
+	},
+	{
+		Module:    "main",
+		Class:     "Async",
+		Method:    "delay",
+		Signature: "delay(_)",
+		IsStatic:  true,
+		Doc:       "Creates a future that completes after specified milliseconds. Returns future ID.",
+	},
+	{
+		Module:    "main",
+		Class:     "Async",
+		Method:    "timer",
+		Signature: "timer(_,_)",
+		IsStatic:  true,
+		Doc:       "Creates a timer future with custom message. Parameters: (seconds, message). Returns future ID.",
+	},
 }

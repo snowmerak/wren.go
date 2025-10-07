@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	_ "github.com/snowmerak/wren.go/builtin"
 	"github.com/snowmerak/wren.go/wrenlsp"
 )
 
