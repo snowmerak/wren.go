@@ -8,7 +8,7 @@ func init() {
 
 func RegisterWrenBindings() {
 	// Async.await(_)
-	RegisterForeignMethod("main", "Async", true, "await(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "await(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.Await(vm)
 		if result != nil {
@@ -19,7 +19,7 @@ func RegisterWrenBindings() {
 	})
 
 	// Async.isReady(_)
-	RegisterForeignMethod("main", "Async", true, "isReady(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "isReady(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.IsReady(vm)
 		if result != nil {
@@ -30,7 +30,7 @@ func RegisterWrenBindings() {
 	})
 
 	// Async.get(_)
-	RegisterForeignMethod("main", "Async", true, "get(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "get(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.Get(vm)
 		if result != nil {
@@ -41,7 +41,7 @@ func RegisterWrenBindings() {
 	})
 
 	// Async.cancel(_)
-	RegisterForeignMethod("main", "Async", true, "cancel(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "cancel(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.Cancel(vm)
 		if result != nil {
@@ -52,7 +52,7 @@ func RegisterWrenBindings() {
 	})
 
 	// Async.getState(_)
-	RegisterForeignMethod("main", "Async", true, "getState(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "getState(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.GetState(vm)
 		if result != nil {
@@ -63,7 +63,7 @@ func RegisterWrenBindings() {
 	})
 
 	// Async.cleanup(_)
-	RegisterForeignMethod("main", "Async", true, "cleanup(_)", func(vm *WrenVM) {
+	RegisterForeignMethod("async", "Async", true, "cleanup(_)", func(vm *WrenVM) {
 		receiver := &Async{}
 		result := receiver.Cleanup(vm)
 		if result != nil {

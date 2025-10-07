@@ -25,93 +25,100 @@ func RegisterAsyncMethod(name string, fn func(args ...interface{}) (interface{},
 }
 
 // Async provides asynchronous task execution from Wren.
-//wren:bind module=main
+//
+//wren:bind module=async
 type Async struct{}
 
 // Await waits for a future to complete and returns its result.
+//
 //wren:bind name=await(_) static
 func (a *Async) Await(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	result, err := future.Wait()
 	if err != nil {
 		return err
 	}
-	
+
 	return setSlotValue(vm, 0, result)
 }
 
 // IsReady checks if a future is ready without blocking.
+//
 //wren:bind name=isReady(_) static
 func (a *Async) IsReady(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	vm.SetSlotBool(0, future.IsReady())
 	return nil
 }
 
 // Get retrieves the result of a future if it's ready.
+//
 //wren:bind name=get(_) static
 func (a *Async) Get(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	result, err := future.Get()
 	if err != nil {
 		return err
 	}
-	
+
 	return setSlotValue(vm, 0, result)
 }
 
 // Cancel cancels a future.
+//
 //wren:bind name=cancel(_) static
 func (a *Async) Cancel(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	future.Cancel()
 	return nil
 }
 
 // GetState returns the state of a future.
+//
 //wren:bind name=getState(_) static
 func (a *Async) GetState(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	future, ok := GetAsyncManager().GetFuture(int64(futureID))
 	if !ok {
 		return errors.New("future not found")
 	}
-	
+
 	state := future.State()
 	vm.SetSlotDouble(0, float64(state))
 	return nil
 }
 
 // Cleanup removes a completed future from memory.
+//
 //wren:bind name=cleanup(_) static
 func (a *Async) Cleanup(vm *WrenVM) error {
 	futureID := vm.GetSlotDouble(1)
-	
+
 	GetAsyncManager().RemoveFuture(int64(futureID))
 	return nil
 }
@@ -122,7 +129,7 @@ func setSlotValue(vm *WrenVM, slot int, value interface{}) error {
 		vm.SetSlotNull(slot)
 		return nil
 	}
-	
+
 	switch v := value.(type) {
 	case bool:
 		vm.SetSlotBool(slot, v)
@@ -139,6 +146,6 @@ func setSlotValue(vm *WrenVM, slot int, value interface{}) error {
 	default:
 		vm.SetSlotString(slot, fmt.Sprintf("%v", v))
 	}
-	
+
 	return nil
 }

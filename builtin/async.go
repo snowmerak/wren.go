@@ -12,7 +12,7 @@ import (
 
 // Async provides built-in async utilities
 //
-//wren:bind module=main
+//wren:bind module=async
 type Async struct{}
 
 // Sleep creates a future that completes after specified seconds

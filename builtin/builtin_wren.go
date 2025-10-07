@@ -9,8 +9,9 @@ func init() {
 }
 
 func RegisterWrenBindings() {
-	// AsyncBuiltin.sleep(_)
-	wrengo.RegisterForeignMethod("main", "AsyncBuiltin", true, "sleep(_)", func(vm *wrengo.WrenVM) {
+	// Async.sleep(_)
+	wrengo.RegisterForeignMethod("async", "Async", true, "sleep(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
 		receiver := &Async{}
 		result := receiver.Sleep(vm)
 		if result != nil {
@@ -20,8 +21,9 @@ func RegisterWrenBindings() {
 		}
 	})
 
-	// AsyncBuiltin.delay(_)
-	wrengo.RegisterForeignMethod("main", "AsyncBuiltin", true, "delay(_)", func(vm *wrengo.WrenVM) {
+	// Async.delay(_)
+	wrengo.RegisterForeignMethod("async", "Async", true, "delay(_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
 		receiver := &Async{}
 		result := receiver.Delay(vm)
 		if result != nil {
@@ -31,8 +33,9 @@ func RegisterWrenBindings() {
 		}
 	})
 
-	// AsyncBuiltin.timer(_,_)
-	wrengo.RegisterForeignMethod("main", "AsyncBuiltin", true, "timer(_,_)", func(vm *wrengo.WrenVM) {
+	// Async.timer(_,_)
+	wrengo.RegisterForeignMethod("async", "Async", true, "timer(_,_)(_)", func(vm *wrengo.WrenVM) {
+		// TODO: Extract vm (*wrengo.WrenVM) from slot 1
 		receiver := &Async{}
 		result := receiver.Timer(vm)
 		if result != nil {
