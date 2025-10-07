@@ -1,5 +1,6 @@
 .serena
 build/
+bin/
 *.exe
 wren.go.test.exe
 node_modules
