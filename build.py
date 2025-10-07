@@ -293,8 +293,8 @@ def main():
                         help='Build command')
     parser.add_argument('--no-static', action='store_true',
                        help='Disable static linking')
-    parser.add_argument('--target', default='cmd/wren-std',
-                       help='Target to build (default: cmd/wren-std)')
+    parser.add_argument('--target', default='cmd/gwen',
+                       help='Target to build (default: cmd/gwen)')
     parser.add_argument('--output', help='Output binary name')
     parser.add_argument('--no-copy-dlls', action='store_true',
                        help='Do not copy MinGW DLLs (Windows only)')
@@ -333,8 +333,8 @@ def main():
     
     if args.command in ['all', 'lsp']:
         # Build LSP server
-        lsp_target = 'cmd/wren-lsp-std'
-        lsp_output = f'wren-lsp-std'
+        lsp_target = 'cmd/gwen-lsp'
+        lsp_output = f'gwen-lsp'
         if not build_go_binary(lsp_target, lsp_output, static=not args.no_static, copy_dlls=False):
             return 1
     
