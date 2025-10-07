@@ -1,10 +1,8 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"time"
 
 	wrengo "github.com/snowmerak/wren.go"
 )
@@ -24,9 +22,6 @@ func main() {
 
 	// Demonstrate multiple VMs running simultaneously
 	multipleVMsExample()
-
-	// Demonstrate async task execution
-	asyncExamples()
 
 	fmt.Println("\n=== All examples completed successfully! ===")
 }
@@ -265,138 +260,6 @@ System.print("  VM2: x = %(x)")
 	fmt.Println("\n  ✓ Each VM has its own independent execution context")
 	fmt.Println("  ✓ Foreign methods are registered globally but executed per-VM")
 	fmt.Println("  ✓ Each VM can handle up to 300 foreign methods")
-}
-
-func asyncExamples() {
-	fmt.Println("\n=== Async Examples ===\n")
-
-	// Example 1: Basic async task
-	fmt.Println("16. Basic Async Task:")
-	
-	am := wrengo.GetAsyncManager()
-	
-	future := am.Submit(func(ctx context.Context) (interface{}, error) {
-		fmt.Println("  Task started...")
-		time.Sleep(300 * time.Millisecond)
-		fmt.Println("  Task completed!")
-		return "Result from async task", nil
-	})
-	
-	fmt.Printf("  Future ID: %d\n", future.ID())
-	fmt.Printf("  Is ready? %v\n", future.IsReady())
-	
-	result, err := future.Wait()
-	if err != nil {
-		fmt.Printf("  Error: %v\n", err)
-		return
-	}
-	
-	fmt.Printf("  Result: %v\n", result)
-	fmt.Printf("  Is ready? %v\n\n", future.IsReady())
-
-	// Example 2: Multiple concurrent tasks
-	fmt.Println("17. Multiple Concurrent Tasks:")
-	
-	futures := make([]*wrengo.Future, 5)
-	for i := 0; i < 5; i++ {
-		taskNum := i + 1
-		futures[i] = am.Submit(func(ctx context.Context) (interface{}, error) {
-			delay := time.Duration(taskNum*50) * time.Millisecond
-			time.Sleep(delay)
-			return fmt.Sprintf("Task %d done", taskNum), nil
-		})
-		fmt.Printf("  Submitted task %d (ID: %d)\n", taskNum, futures[i].ID())
-	}
-	
-	fmt.Println("  Waiting for all tasks...")
-	for i, future := range futures {
-		result, err := future.Wait()
-		if err != nil {
-			fmt.Printf("  Task %d error: %v\n", i+1, err)
-		} else {
-			fmt.Printf("  %v\n", result)
-		}
-	}
-	fmt.Println()
-
-	// Example 3: Task with timeout
-	fmt.Println("18. Task with Timeout:")
-	
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
-	
-	future = am.SubmitWithContext(ctx, func(ctx context.Context) (interface{}, error) {
-		select {
-		case <-time.After(500 * time.Millisecond):
-			return "Should not reach here", nil
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		}
-	})
-	
-	result, err = future.Wait()
-	if err != nil {
-		fmt.Printf("  Task failed as expected: %v\n", err)
-	} else {
-		fmt.Printf("  Unexpected result: %v\n", result)
-	}
-	fmt.Println()
-
-	// Example 4: Task cancellation
-	fmt.Println("19. Task Cancellation:")
-	
-	future = am.Submit(func(ctx context.Context) (interface{}, error) {
-		for i := 0; i < 5; i++ {
-			select {
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			case <-time.After(100 * time.Millisecond):
-				fmt.Printf("  Working... %d/5\n", i+1)
-			}
-		}
-		return "Completed", nil
-	})
-	
-	// Cancel after a short delay
-	time.Sleep(150 * time.Millisecond)
-	fmt.Println("  Cancelling task...")
-	future.Cancel()
-	
-	result, err = future.Wait()
-	if err != nil {
-		fmt.Printf("  Task was cancelled: %v\n", err)
-	} else {
-		fmt.Printf("  Unexpected result: %v\n", result)
-	}
-	fmt.Println()
-
-	// Example 5: Non-blocking check
-	fmt.Println("20. Non-blocking Future Check:")
-	
-	future = am.Submit(func(ctx context.Context) (interface{}, error) {
-		time.Sleep(200 * time.Millisecond)
-		return 42, nil
-	})
-	
-	attempts := 0
-	for attempts < 5 {
-		if future.IsReady() {
-			result, err := future.Get()
-			if err != nil {
-				fmt.Printf("  Error: %v\n", err)
-			} else {
-				fmt.Printf("  Got result after %d checks: %v\n", attempts+1, result)
-			}
-			break
-		}
-		fmt.Printf("  Check %d: Not ready yet...\n", attempts+1)
-		time.Sleep(50 * time.Millisecond)
-		attempts++
-	}
-	
-	if !future.IsReady() {
-		fmt.Println("  Gave up waiting")
-	}
 }
 
 func mustInterpret(vm *wrengo.WrenVM, module, source string) {
