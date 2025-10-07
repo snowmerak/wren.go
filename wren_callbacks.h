@@ -3,6 +3,9 @@
 
 #include "wren.h"
 
+// Module loader callback
+WrenLoadModuleResult wrengoLoadModule(WrenVM* vm, char* name);
+
 void wrengoWriteFn(WrenVM* vm, const char* text);
 void wrengoErrorFn(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message);
 

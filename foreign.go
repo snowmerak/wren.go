@@ -10,6 +10,7 @@ package wrengo
 import "C"
 import (
 	"sync"
+	"time"
 	"unsafe"
 )
 
@@ -125,6 +126,9 @@ func NewVMWithForeign() *WrenVM {
 	// Set foreign method and class binders
 	config.bindForeignMethodFn = C.WrenBindForeignMethodFn(C.wrengoBindForeignMethod)
 	config.bindForeignClassFn = C.WrenBindForeignClassFn(C.wrengoBindForeignClass)
+	
+	// Add module loader for async module support
+	config.loadModuleFn = C.WrenLoadModuleFn(C.wrengoLoadModule)
 
 	vm := &WrenVM{
 		vm: C.wrenNewVM(&config),
@@ -138,4 +142,43 @@ func NewVMWithForeign() *WrenVM {
 // It allocates size bytes of memory and returns a pointer to it.
 func (vm *WrenVM) SetSlotNewForeign(slot, classSlot int, size int) unsafe.Pointer {
 	return C.wrenSetSlotNewForeign(vm.vm, C.int(slot), C.int(classSlot), C.size_t(size))
+}
+
+// registerAsyncMethods registers all async module foreign methods
+func registerAsyncMethods() {
+	// Register the Async foreign class
+	RegisterForeignClass("async", "Async", nil, nil)
+	RegisterForeignMethod("async", "Async", true, "sleep(_)", func(vm *WrenVM) {
+		// Simple synchronous sleep for testing
+		ms := vm.GetSlotDouble(1)
+		if ms > 0 {
+			time.Sleep(time.Duration(ms) * time.Millisecond)
+		}
+		vm.SetSlotString(0, "Sleep completed")
+	})
+	
+	RegisterForeignMethod("async", "Async", true, "delay(_)", func(vm *WrenVM) {
+		ms := vm.GetSlotDouble(1)
+		if ms > 0 {
+			time.Sleep(time.Duration(ms) * time.Millisecond)
+		}
+		vm.SetSlotString(0, "Delay completed")
+	})
+	
+	RegisterForeignMethod("async", "Async", true, "timer(_,_)", func(vm *WrenVM) {
+		ms := vm.GetSlotDouble(1)
+		message := vm.GetSlotString(2)
+		if ms > 0 {
+			time.Sleep(time.Duration(ms) * time.Millisecond)
+		}
+		if message != "" {
+			vm.SetSlotString(0, message)
+		} else {
+			vm.SetSlotString(0, "Timer completed")
+		}
+	})
+}
+
+func init() {
+	registerAsyncMethods()
 }
