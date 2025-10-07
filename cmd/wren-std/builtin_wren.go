@@ -12,7 +12,7 @@ func init() {
 	wrengo.RegisterForeignMethod("async", "Async", true, "sleep(_)", wrengoForeignMethod_0)
 	wrengo.RegisterForeignMethod("async", "Async", true, "delay(_)", wrengoForeignMethod_1)
 	wrengo.RegisterForeignMethod("async", "Async", true, "timer(_,_)", wrengoForeignMethod_2)
-	
+
 	// Register math module
 	wrengo.RegisterForeignMethod("math", "Math", true, "sqrt(_)", wrengoForeignMethod_3)
 	wrengo.RegisterForeignMethod("math", "Math", true, "pow(_,_)", wrengoForeignMethod_4)
@@ -22,22 +22,23 @@ func init() {
 	wrengo.RegisterForeignMethod("math", "Math", true, "max(_,_)", wrengoForeignMethod_8)
 	wrengo.RegisterForeignMethod("math", "Math", true, "min(_,_)", wrengoForeignMethod_9)
 	wrengo.RegisterForeignMethod("math", "Math", true, "pi", wrengoForeignMethod_10)
-	
-	// Register strings module
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "upper(_)", wrengoForeignMethod_11)
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "lower(_)", wrengoForeignMethod_12)
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "trim(_)", wrengoForeignMethod_13)
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "contains(_,_)", wrengoForeignMethod_14)
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "split(_,_)", wrengoForeignMethod_15)
-	wrengo.RegisterForeignMethod("strings", "Strings", true, "join(_,_)", wrengoForeignMethod_16)
-	
+
 	// Register strconv module
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "atoi(_)", wrengoForeignMethod_17)
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseFloat(_)", wrengoForeignMethod_18)
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "itoa(_)", wrengoForeignMethod_19)
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatFloat(_,_)", wrengoForeignMethod_20)
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseBool(_)", wrengoForeignMethod_21)
-	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatBool(_)", wrengoForeignMethod_22)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "atoi(_)", wrengoForeignMethod_11)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseFloat(_)", wrengoForeignMethod_12)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "itoa(_)", wrengoForeignMethod_13)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatFloat(_,_)", wrengoForeignMethod_14)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "parseBool(_)", wrengoForeignMethod_15)
+	wrengo.RegisterForeignMethod("strconv", "StrConv", true, "formatBool(_)", wrengoForeignMethod_16)
+
+	// Register strings module
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "upper(_)", wrengoForeignMethod_17)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "lower(_)", wrengoForeignMethod_18)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "trim(_)", wrengoForeignMethod_19)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "contains(_,_)", wrengoForeignMethod_20)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "split(_,_)", wrengoForeignMethod_21)
+	wrengo.RegisterForeignMethod("strings", "Strings", true, "join(_,_)", wrengoForeignMethod_22)
+
 }
 
 // Async module methods
@@ -108,76 +109,77 @@ func wrengoForeignMethod_10(vm *wrengo.WrenVM) {
 	math.Pi(vm)
 }
 
-// Strings module methods
+// StrConv module methods
 //export wrengoForeignMethod_11
 func wrengoForeignMethod_11(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.ToUpper(vm)
-}
-
-//export wrengoForeignMethod_12
-func wrengoForeignMethod_12(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.ToLower(vm)
-}
-
-//export wrengoForeignMethod_13
-func wrengoForeignMethod_13(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.Trim(vm)
-}
-
-//export wrengoForeignMethod_14
-func wrengoForeignMethod_14(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.Contains(vm)
-}
-
-//export wrengoForeignMethod_15
-func wrengoForeignMethod_15(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.Split(vm)
-}
-
-//export wrengoForeignMethod_16
-func wrengoForeignMethod_16(vm *wrengo.WrenVM) {
-	strings := &builtin.Strings{}
-	strings.Join(vm)
-}
-
-// StrConv module methods
-//export wrengoForeignMethod_17
-func wrengoForeignMethod_17(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.Atoi(vm)
 }
 
-//export wrengoForeignMethod_18
-func wrengoForeignMethod_18(vm *wrengo.WrenVM) {
+//export wrengoForeignMethod_12
+func wrengoForeignMethod_12(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.ParseFloat(vm)
 }
 
-//export wrengoForeignMethod_19
-func wrengoForeignMethod_19(vm *wrengo.WrenVM) {
+//export wrengoForeignMethod_13
+func wrengoForeignMethod_13(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.Itoa(vm)
 }
 
-//export wrengoForeignMethod_20
-func wrengoForeignMethod_20(vm *wrengo.WrenVM) {
+//export wrengoForeignMethod_14
+func wrengoForeignMethod_14(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.FormatFloat(vm)
 }
 
-//export wrengoForeignMethod_21
-func wrengoForeignMethod_21(vm *wrengo.WrenVM) {
+//export wrengoForeignMethod_15
+func wrengoForeignMethod_15(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.ParseBool(vm)
 }
 
-//export wrengoForeignMethod_22
-func wrengoForeignMethod_22(vm *wrengo.WrenVM) {
+//export wrengoForeignMethod_16
+func wrengoForeignMethod_16(vm *wrengo.WrenVM) {
 	strconv := &builtin.StrConv{}
 	strconv.FormatBool(vm)
 }
+
+// Strings module methods
+//export wrengoForeignMethod_17
+func wrengoForeignMethod_17(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.ToUpper(vm)
+}
+
+//export wrengoForeignMethod_18
+func wrengoForeignMethod_18(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.ToLower(vm)
+}
+
+//export wrengoForeignMethod_19
+func wrengoForeignMethod_19(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.Trim(vm)
+}
+
+//export wrengoForeignMethod_20
+func wrengoForeignMethod_20(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.Contains(vm)
+}
+
+//export wrengoForeignMethod_21
+func wrengoForeignMethod_21(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.Split(vm)
+}
+
+//export wrengoForeignMethod_22
+func wrengoForeignMethod_22(vm *wrengo.WrenVM) {
+	strings := &builtin.Strings{}
+	strings.Join(vm)
+}
+
