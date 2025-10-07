@@ -123,7 +123,7 @@ func (c *CLI) PrintVersion() {
 
 	fmt.Printf("Wren CLI\n")
 	fmt.Printf("Wren version: %d.%d.%d\n", major, minor, patch)
-	fmt.Printf("Go bindings: github.com/snowmerak/wren.go\n")
+	fmt.Printf("Go bindings: github.com/snowmerak/gwen\n")
 }
 
 // RunScript executes a Wren script from a file.
