@@ -24,15 +24,21 @@ var moduleDefinitions = map[string]string{
   foreign static min(a, b)
   foreign static pi
 }`,
-	"strings": `foreign class StringUtils {
+	"strings": `foreign class Strings {
   foreign static upper(str)
   foreign static lower(str)
   foreign static trim(str)
   foreign static contains(str, substr)
   foreign static split(str, delimiter)
   foreign static join(elements, delimiter)
-  foreign static parseInt(str)
+}`,
+	"strconv": `foreign class StrConv {
+  foreign static atoi(str)
   foreign static parseFloat(str)
+  foreign static itoa(num)
+  foreign static formatFloat(num, precision)
+  foreign static parseBool(str)
+  foreign static formatBool(bool)
 }`,
 }
 

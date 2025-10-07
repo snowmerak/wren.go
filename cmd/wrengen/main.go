@@ -1,26 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 )
 
 type ModuleInfo struct {
 	ModuleName string
-	Classes    []ClassInfo
-}
-
-type ClassInfo struct {
-	ClassName string
-	Methods   []MethodInfo
+	ClassName  string
+	Methods    []MethodInfo
 }
 
 type MethodInfo struct {
@@ -76,57 +71,69 @@ func parseBuiltinDirectory(dir string) []ModuleInfo {
 }
 
 func parseGoFile(filename string) *ModuleInfo {
-	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
+	file, err := os.Open(filename)
 	if err != nil {
-		log.Printf("Error parsing %s: %v", filename, err)
+		log.Printf("Error opening %s: %v", filename, err)
 		return nil
 	}
-	
+	defer file.Close()
+
 	var module ModuleInfo
-	var currentClass ClassInfo
+	var methods []MethodInfo
 	methodIndex := 0
 	
-	ast.Inspect(node, func(n ast.Node) bool {
-		switch x := n.(type) {
-		case *ast.TypeSpec:
-			if x.Doc != nil {
-				moduleComment := extractComment(x.Doc.Text())
-				if moduleName := extractModuleName(moduleComment); moduleName != "" {
-					module.ModuleName = moduleName
-					currentClass.ClassName = x.Name.Name
-				}
-			}
-		case *ast.FuncDecl:
-			if x.Doc != nil && x.Recv != nil {
-				comment := extractComment(x.Doc.Text())
-				if methodInfo := parseMethodComment(comment, x.Name.Name, methodIndex); methodInfo != nil {
-					currentClass.Methods = append(currentClass.Methods, *methodInfo)
-					methodIndex++
+	scanner := bufio.NewScanner(file)
+	var commentBlock []string
+	
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		
+		// Collect comment lines
+		if strings.HasPrefix(line, "//") {
+			commentBlock = append(commentBlock, line)
+			continue
+		}
+		
+		// Check for type declaration (module)
+		if strings.HasPrefix(line, "type ") && strings.Contains(line, "struct{}") {
+			moduleComment := strings.Join(commentBlock, "\n")
+			if moduleName := extractModuleName(moduleComment); moduleName != "" {
+				module.ModuleName = moduleName
+				// Extract class name from type declaration
+				re := regexp.MustCompile(`type\s+(\w+)\s+struct`)
+				matches := re.FindStringSubmatch(line)
+				if len(matches) > 1 {
+					module.ClassName = matches[1]
 				}
 			}
 		}
-		return true
-	})
+		
+		// Check for function declaration
+		if strings.HasPrefix(line, "func (") && strings.Contains(line, ") ") {
+			commentContent := strings.Join(commentBlock, "\n")
+			if methodInfo := parseMethodComment(commentContent, line, methodIndex); methodInfo != nil {
+				methods = append(methods, *methodInfo)
+				methodIndex++
+			}
+		}
+		
+		// Reset comment block if we hit a non-comment line
+		if !strings.HasPrefix(line, "//") && line != "" {
+			commentBlock = nil
+		}
+	}
 	
-	if module.ModuleName != "" && len(currentClass.Methods) > 0 {
-		module.Classes = []ClassInfo{currentClass}
+	if err := scanner.Err(); err != nil {
+		log.Printf("Error reading %s: %v", filename, err)
+		return nil
+	}
+	
+	if module.ModuleName != "" && len(methods) > 0 {
+		module.Methods = methods
 		return &module
 	}
 	
 	return nil
-}
-
-func extractComment(text string) string {
-	lines := strings.Split(text, "\n")
-	var result []string
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "//") {
-			result = append(result, strings.TrimSpace(line[2:]))
-		}
-	}
-	return strings.Join(result, "\n")
 }
 
 func extractModuleName(comment string) string {
@@ -138,51 +145,76 @@ func extractModuleName(comment string) string {
 	return ""
 }
 
-func parseMethodComment(comment, goName string, index int) *MethodInfo {
-	re := regexp.MustCompile(`wren:bind\s+name=([^\s]+)(?:\s+(static))?`)
-	matches := re.FindStringSubmatch(comment)
-	if len(matches) > 1 {
-		return &MethodInfo{
-			GoName:    goName,
-			WrenName:  matches[1],
-			IsStatic:  len(matches) > 2 && matches[2] == "static",
-			Signature: matches[1],
-			Index:     index,
-		}
+func parseMethodComment(comment, funcLine string, index int) *MethodInfo {
+	// Extract function name from function declaration
+	re := regexp.MustCompile(`func\s+\([^)]+\)\s+(\w+)\(`)
+	funcMatches := re.FindStringSubmatch(funcLine)
+	if len(funcMatches) < 2 {
+		return nil
 	}
-	return nil
+	goName := funcMatches[1]
+	
+	// Parse wren:bind comment
+	bindRe := regexp.MustCompile(`wren:bind\s+name=([^\s]+)(?:\s+(static))?`)
+	bindMatches := bindRe.FindStringSubmatch(comment)
+	if len(bindMatches) < 2 {
+		return nil
+	}
+	
+	return &MethodInfo{
+		GoName:    goName,
+		WrenName:  bindMatches[1],
+		IsStatic:  len(bindMatches) > 2 && bindMatches[2] == "static",
+		Signature: bindMatches[1],
+		Index:     index,
+	}
 }
 
 func generateBuiltinWren(modules []ModuleInfo) {
+	// Sort modules by name for consistent output
+	sort.Slice(modules, func(i, j int) bool {
+		return modules[i].ModuleName < modules[j].ModuleName
+	})
+	
+	// Assign global indices to methods across all modules
+	globalIndex := 0
+	for i := range modules {
+		for j := range modules[i].Methods {
+			modules[i].Methods[j].Index = globalIndex
+			globalIndex++
+		}
+	}
+	
 	tmpl := `// Code generated by wrengen. DO NOT EDIT.
 
-package wrengo
+package main
 
 import (
+	wrengo "github.com/snowmerak/wren.go"
 	"github.com/snowmerak/wren.go/builtin"
 )
 
 func init() {
-	{{range $module := .}}{{range $class := $module.Classes}}{{range $method := $class.Methods}}
-	RegisterForeignMethod("{{$module.ModuleName}}", "{{$class.ClassName}}", {{$method.IsStatic}}, "{{$method.Signature}}", wrengoForeignMethod_{{$method.Index}}){{end}}{{end}}{{end}}
+{{range $module := .}}	// Register {{$module.ModuleName}} module
+{{range $method := $module.Methods}}	wrengo.RegisterForeignMethod("{{$module.ModuleName}}", "{{$module.ClassName}}", {{$method.IsStatic}}, "{{$method.Signature}}", wrengoForeignMethod_{{$method.Index}})
+{{end}}
+{{end}}}
+
+{{range $module := .}}// {{$module.ClassName}} module methods
+{{range $method := $module.Methods}}//export wrengoForeignMethod_{{$method.Index}}
+func wrengoForeignMethod_{{$method.Index}}(vm *wrengo.WrenVM) {
+	{{$module.ModuleName}} := &builtin.{{$module.ClassName}}{}
+	{{$module.ModuleName}}.{{$method.GoName}}(vm)
 }
 
-{{range $module := .}}{{range $class := $class.Classes}}{{range $method := $class.Methods}}
-//export wrengoForeignMethod_{{$method.Index}}
-func wrengoForeignMethod_{{$method.Index}}(vm *WrenVM) {
-	{{if eq $module.ModuleName "async"}}async := &builtin.Async{}
-	async.{{$method.GoName}}(vm){{else if eq $module.ModuleName "math"}}math := &builtin.Math{}
-	math.{{$method.GoName}}(vm){{else if eq $module.ModuleName "strings"}}strings := &builtin.StringUtils{}
-	strings.{{$method.GoName}}(vm){{end}}
-}{{end}}{{end}}{{end}}
-`
+{{end}}{{end}}`
 	
 	t, err := template.New("builtin").Parse(tmpl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	
-	file, err := os.Create("builtin_wren.go")
+	file, err := os.Create("cmd/wren-std/builtin_wren.go")
 	if err != nil {
 		log.Fatal(err)
 	}
