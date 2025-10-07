@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // StartREPL starts an interactive Read-Eval-Print Loop.

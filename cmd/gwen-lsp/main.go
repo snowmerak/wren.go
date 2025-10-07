@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/snowmerak/wren.go/builtin"
-	"github.com/snowmerak/wren.go/wrenlsp"
+	_ "github.com/snowmerak/gwen/builtin"
+	"github.com/snowmerak/gwen/wrenlsp"
 )
 
 func main() {

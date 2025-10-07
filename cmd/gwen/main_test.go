@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	wrengo "github.com/snowmerak/wren.go"
-	"github.com/snowmerak/wren.go/wrencli"
+	wrengo "github.com/snowmerak/gwen"
+	"github.com/snowmerak/gwen/wrencli"
 )
 
 func TestStandardCLI(t *testing.T) {

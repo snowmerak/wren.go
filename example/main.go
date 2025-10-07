@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 func main() {

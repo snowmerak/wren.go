@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // StrConv provides built-in string conversion utilities

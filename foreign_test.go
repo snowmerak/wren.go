@@ -3,7 +3,7 @@ package wrengo_test
 import (
 	"testing"
 
-	"github.com/snowmerak/wren.go"
+	"github.com/snowmerak/gwen"
 )
 
 func TestForeignMethod(t *testing.T) {

@@ -1,3 +1,3 @@
-module github.com/snowmerak/wren.go
+module github.com/snowmerak/gwen
 
 go 1.25.1

@@ -5,7 +5,7 @@ package builtin
 import (
 	"strings"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // Strings provides built-in string manipulation utilities
@@ -61,7 +61,7 @@ func (s *Strings) Split(vm *wrengo.WrenVM) error {
 	str := vm.GetSlotString(1)
 	delimiter := vm.GetSlotString(2)
 	parts := strings.Split(str, delimiter)
-	
+
 	// Return as a comma-separated string for simplicity
 	// In a real implementation, you might want to return a Wren List
 	result := strings.Join(parts, ",")
@@ -75,10 +75,9 @@ func (s *Strings) Split(vm *wrengo.WrenVM) error {
 func (s *Strings) Join(vm *wrengo.WrenVM) error {
 	elements := vm.GetSlotString(1) // Comma-separated elements
 	delimiter := vm.GetSlotString(2)
-	
+
 	parts := strings.Split(elements, ",")
 	result := strings.Join(parts, delimiter)
 	vm.SetSlotString(0, result)
 	return nil
 }
-

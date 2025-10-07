@@ -2,7 +2,7 @@
 
 package builtin
 
-import wrengo "github.com/snowmerak/wren.go"
+import wrengo "github.com/snowmerak/gwen"
 
 func init() {
 	RegisterWrenBindings()

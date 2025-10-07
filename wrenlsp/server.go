@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // Document represents an open document.
@@ -150,11 +150,11 @@ func (s *Server) writeMessage(msg map[string]interface{}) error {
 	}
 
 	header := fmt.Sprintf("Content-Length: %d\r\n\r\n", len(content))
-	
+
 	if _, err := s.writer.Write([]byte(header)); err != nil {
 		return err
 	}
-	
+
 	if _, err := s.writer.Write(content); err != nil {
 		return err
 	}
@@ -424,7 +424,3 @@ func (s *Server) publishDiagnostics(uri, content string) {
 
 	s.writeMessage(notification)
 }
-
-
-
-

@@ -5,7 +5,7 @@ package builtin
 import (
 	"math"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // Math provides built-in mathematical utilities

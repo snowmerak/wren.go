@@ -3,8 +3,8 @@
 package main
 
 import (
-	wrengo "github.com/snowmerak/wren.go"
-	"github.com/snowmerak/wren.go/builtin"
+	wrengo "github.com/snowmerak/gwen"
+	"github.com/snowmerak/gwen/builtin"
 )
 
 func init() {

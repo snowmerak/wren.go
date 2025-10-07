@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	wrengo "github.com/snowmerak/wren.go"
+	wrengo "github.com/snowmerak/gwen"
 )
 
 // Async provides built-in async utilities
